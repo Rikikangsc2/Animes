@@ -223,7 +223,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                 <div class="container mt-5">
                     <h1>${animeDetail.anime_detail.title}</h1>
                     <div class="iframe-container">
-                        ${episodeData.streamLink ? `<iframe src="${episodeData.streamLink}" frameborder="0" allowfullscreen></iframe>` : '<p>Belum update kak tungguin ya</p>'}
+                        ${episodeData.streamLink ? `<iframe src="${episodeData.streamLink}" frameborder="0" allowfullscreen></iframe>` : '<h1>Silahkan spam tombol next episode atau back episode sampe muncul list episode, Masalah ini kami sedang mencari solusinya</h1>'}
                     </div>
                     <div class="d-flex justify-content-between mt-4">
                         <a href="/anime/${animeId}/${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}">Previous Episode</a>
