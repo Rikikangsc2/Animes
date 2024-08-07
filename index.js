@@ -82,7 +82,10 @@ app.get('/', async (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Anidong - Home</title>
+                <title>PurNime - Streaming Anime & Donghua</title>
+                <meta name="description" content="PurNime adalah situs streaming anime dan donghua dengan koleksi episode terbaru dan populer.">
+                <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
+                <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
                     body { background-color: #121212; color: #fff; }
@@ -91,7 +94,7 @@ app.get('/', async (req, res) => {
             </head>
             <body>
                 <div class="container mt-5">
-                    <h1 class="text-center">Anidong</h1>
+                    <h1 class="text-center">PurNime</h1>
                     <form class="d-flex justify-content-center mb-4">
                         <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search" value="${search}">
                         <button class="btn btn-outline-success" type="submit">Search</button>
@@ -152,7 +155,10 @@ app.get('/stream', async (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${anime.title} - Episode ${episode}</title>
+                <title>${anime.title} - Episode ${episode} | PurNime</title>
+                <meta name="description" content="Tonton ${anime.title} episode ${episode} di PurNime, situs streaming anime dan donghua terbaik.">
+                <meta name="keywords" content="${anime.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
+                <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
                     body { background-color: #121212; color: #fff; }
@@ -189,6 +195,7 @@ app.get('/stream', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Admin endpoint for adding new anime and episodes
 app.get('/admin', (req, res) => {
