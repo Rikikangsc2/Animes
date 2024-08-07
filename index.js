@@ -75,6 +75,7 @@ app.get('/', async (req, res) => {
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
                     body { background-color: #121212; color: #fff; }
+                    .anime-thumbnail { max-height: 150px; }
                 </style>
             </head>
             <body>
@@ -84,10 +85,10 @@ app.get('/', async (req, res) => {
                         <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search" value="${search}">
                         <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
-                    <div class="row">
+                    <div class="row row-cols-1 row-cols-md-3 g-4">
                         ${paginatedAnime.map(anime => `
-                            <div class="col-md-4">
-                                <div class="card mb-4">
+                            <div class="col">
+                                <div class="card h-100 text-white bg-dark">
                                     <img src="${anime.thumbnail}" class="card-img-top anime-thumbnail" alt="${anime.title}">
                                     <div class="card-body">
                                         <h5 class="card-title">${anime.title}</h5>
@@ -134,6 +135,7 @@ app.get('/stream', async (req, res) => {
 
         const nextEpisode = episode + 1;
         const prevEpisode = episode - 1;
+        const episodeLink = anime.episodes[episode - 1]?.link || '';
 
         res.send(`
             <!DOCTYPE html>
@@ -148,15 +150,17 @@ app.get('/stream', async (req, res) => {
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
                     body { background-color: #121212; color: #fff; }
+                    .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
+                    .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
                 </style>
             </head>
             <body>
                 <div class="container mt-5">
                     <h1>${anime.title} - Episode ${episode}</h1>
-                    <div class="mb-4">
-                        <iframe src="${anime.episodes[episode - 1]?.link || '#'}" class="w-100" height="500"></iframe>
+                    <div class="iframe-container">
+                        ${episodeLink ? `<iframe src="${episodeLink}" frameborder="0" allowfullscreen></iframe>` : '<p>Belum update kak tungguin ya</p>'}
                     </div>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between mt-4">
                         <a href="/stream?anime-id=${animeId}&episode=${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}">Previous Episode</a>
                         <a href="/stream?anime-id=${animeId}&episode=${nextEpisode}" class="btn btn-outline-light ${nextEpisode > anime.episodes.length ? 'disabled' : ''}">Next Episode</a>
                     </div>
