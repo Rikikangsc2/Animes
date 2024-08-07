@@ -74,37 +74,70 @@ app.get('/', async (req, res) => {
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
-                    body { background-color: #121212; color: #fff; }
-                    .anime-thumbnail { max-height: 150px; }
+                    body { 
+                        background-color: #121212; 
+                        color: #fff; 
+                        font-family: 'Arial', sans-serif;
+                    }
+                    .anime-thumbnail { 
+                        max-height: 230px; 
+                        border-radius: 10px; 
+                    }
+                    .card {
+                        border: none;
+                        background: transparent;
+                    }
+                    .card-title {
+                        font-size: 1.2rem;
+                        font-weight: 600;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    .card-text {
+                        font-size: 0.9rem;
+                        color: #a0a0a0;
+                    }
+                    .btn-primary {
+                        background-color: #007bff;
+                        border: none;
+                        border-radius: 5px;
+                        padding: 8px 16px;
+                        font-size: 0.9rem;
+                    }
+                    .btn-primary:hover {
+                        background-color: #0056b3;
+                    }
                 </style>
             </head>
             <body>
                 <div class="container mt-5">
-                    <h1 class="text-center">PurNime</h1>
+                    <h1 class="text-center mb-4">PurNime</h1>
                     <form class="d-flex justify-content-center mb-4">
                         <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search" value="${search}">
-                        <button class="btn btn-outline-success" type="submit">Search</button>
+                        <button class="btn btn-outline-light" type="submit">Search</button>
                     </form>
                     <div class="row row-cols-1 row-cols-md-3 g-4">
                         ${paginatedAnime.map(anime => `
                             <div class="col">
-                                <div class="card h-100 text-white bg-dark">
-                                    <img src="${anime.thumbnail}" class="card-img-top anime-thumbnail" alt="${anime.title}">
-                                    <div class="card-body">
-                                        <h5 class="card-title">${anime.title}</h5>
-                                        <p class="card-text">${anime.genre}</p>
-                                        <p class="card-text">${anime.episodes.length} episodes</p>
-                                        <a href="/stream?anime-id=${anime.animeId}&episode=1" class="btn btn-primary">Watch</a>
-                                    </div>
+                                <div class="card h-100 text-white">
+                                    <a href="/stream?anime-id=${anime.animeId}&episode=${anime.episodes.length}" style="text-decoration: none;"> 
+                                        <img src="${anime.thumbnail}" class="card-img-top anime-thumbnail" alt="${anime.title}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${anime.title}</h5>
+                                            <p class="card-text">${anime.genre}</p>
+                                            <p class="card-text">${anime.episodes.length} episodes</p>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
-                    <nav aria-label="Page navigation">
+                    <nav aria-label="Page navigation" class="mt-4">
                         <ul class="pagination justify-content-center">
                             ${pagination.map(p => `
                                 <li class="page-item ${p === page ? 'active' : ''} ${typeof p === 'number' ? '' : 'disabled'}">
-                                    <a class="page-link" href="/?page=${p === '...' ? page : p}&search=${search}">${p}</a>
+                                    <a class="page-link bg-dark text-light" href="/?page=${p === '...' ? page : p}&search=${search}">${p}</a>
                                 </li>
                             `).join('')}
                         </ul>
@@ -119,6 +152,7 @@ app.get('/', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Endpoint for streaming anime episodes
 app.get('/stream', async (req, res) => {
