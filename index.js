@@ -50,7 +50,10 @@ app.get('/', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const search = req.query.search || '';
-        const data = await fetchAnimeData();
+        let data = await fetchAnimeData();
+
+        // Sort data to have the latest anime first
+        data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         const filteredAnime = data.filter(anime =>
             anime.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -153,7 +156,6 @@ app.get('/', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 // Endpoint for streaming anime episodes
 app.get('/stream', async (req, res) => {
@@ -303,7 +305,8 @@ app.post('/admin/add-anime', async (req, res) => {
             thumbnail: req.body.thumbnail,
             genre: req.body.genre,
             animeId: req.body.animeId,
-            episodes: []
+            episodes: [],
+            date: new Date().toISOString() // Add a date property
         };
 
         const data = await fetchAnimeData();
