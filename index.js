@@ -73,12 +73,12 @@ app.get('/', async (req, res) => {
                 <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
                 <style>
                     body { background-color: #121212; color: #fff; }
                     .anime-thumbnail { max-height: 150px; }
-                    .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #212529; padding: 10px; }
-                    .bottom-bar a { color: #fff; margin: 0 15px; }
+                    .bottom-bar { position: fixed; bottom: 0; width: 100%; background-color: #222; padding: 10px 0; }
+                    .bottom-bar a { color: #fff; margin: 0 20px; text-align: center; }
                 </style>
             </head>
             <body>
@@ -97,7 +97,7 @@ app.get('/', async (req, res) => {
                                         <h5 class="card-title">${anime.title}</h5>
                                         <p class="card-text">${anime.genre}</p>
                                         <p class="card-text">${anime.episodes.length} episodes</p>
-                                        <a href="/stream?anime-id=${anime.animeId}&episode=1" class="btn btn-primary" onclick="addToHistory('${anime.title}', '/stream?anime-id=${anime.animeId}&episode=1')">Watch</a>
+                                        <a href="/stream?anime-id=${anime.animeId}&episode=1" class="btn btn-primary">Watch</a>
                                     </div>
                                 </div>
                             </div>
@@ -113,57 +113,46 @@ app.get('/', async (req, res) => {
                         </ul>
                     </nav>
                 </div>
-                <div class="bottom-bar d-flex justify-content-center">
-                    <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
-                    <a href="#" class="nav-link" onclick="showHistory()"><i class="fas fa-history"></i> History</a>
+                <div class="bottom-bar d-flex justify-content-around">
+                    <a href="/"><i class="fas fa-home"></i> Home</a>
+                    <a href="/history" id="history-link"><i class="fas fa-history"></i> History</a>
                 </div>
-                <div id="historyModal" class="modal fade" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Watch History</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <ul id="historyList" class="list-group">
-                                    <!-- History items will be appended here -->
-                                </ul>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
                 <script>
-                    function addToHistory(title, link) {
+                    // Save history to local storage
+                    function saveToHistory(anime) {
                         let history = JSON.parse(localStorage.getItem('history')) || [];
-                        history = history.filter(item => item.link !== link);
-                        history.unshift({ title, link });
+                        history = history.filter(item => item.animeId !== anime.animeId);
+                        history.unshift(anime);
                         if (history.length > 20) history.pop();
                         localStorage.setItem('history', JSON.stringify(history));
                     }
-
-                    function showHistory() {
+                    // Load history from local storage
+                    document.getElementById('history-link').addEventListener('click', () => {
                         const history = JSON.parse(localStorage.getItem('history')) || [];
-                        const historyList = document.getElementById('historyList');
-                        historyList.innerHTML = history.map((item, index) => `
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="${item.link}" class="text-decoration-none">${item.title}</a>
-                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory(${index})">&times;</button>
+                        const historyList = history.map(item => `
+                            <li class="list-group-item">
+                                <a href="/stream?anime-id=${item.animeId}&episode=1">${item.title}</a>
+                                <button onclick="removeFromHistory('${item.animeId}')" class="btn btn-danger btn-sm float-end">Remove</button>
                             </li>
                         `).join('');
-                        new bootstrap.Modal(document.getElementById('historyModal')).show();
-                    }
-
-                    function removeFromHistory(index) {
+                        document.body.innerHTML = `
+                            <div class="container mt-5">
+                                <h1>History</h1>
+                                <ul class="list-group">${historyList}</ul>
+                                <a href="/" class="btn btn-primary mt-4">Back to Home</a>
+                            </div>
+                        `;
+                    });
+                    // Remove history item from local storage
+                    function removeFromHistory(animeId) {
                         let history = JSON.parse(localStorage.getItem('history')) || [];
-                        history.splice(index, 1);
+                        history = history.filter(item => item.animeId !== animeId);
                         localStorage.setItem('history', JSON.stringify(history));
-                        showHistory();
+                        location.reload();
                     }
                 </script>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
             </body>
             </html>
         `);
@@ -370,4 +359,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-    
