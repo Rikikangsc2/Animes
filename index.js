@@ -43,7 +43,7 @@ function getPagination(currentPage, totalPages) {
     if (totalPages > 1) range.push(totalPages);
 
     return range;
-}
+};
 
 // Endpoint for displaying anime list with pagination and search
 app.get('/', async (req, res) => {
@@ -128,6 +128,7 @@ app.get('/', async (req, res) => {
                         if (history.length > 20) history.pop();
                         localStorage.setItem('history', JSON.stringify(history));
                     }
+
                     // Load history from local storage
                     document.getElementById('history-link').addEventListener('click', () => {
                         const history = JSON.parse(localStorage.getItem('history')) || [];
@@ -145,6 +146,7 @@ app.get('/', async (req, res) => {
                             </div>
                         `;
                     });
+
                     // Remove history item from local storage
                     function removeFromHistory(animeId) {
                         let history = JSON.parse(localStorage.getItem('history')) || [];
@@ -161,6 +163,7 @@ app.get('/', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Endpoint for streaming anime episodes
 app.get('/stream', async (req, res) => {
