@@ -33,26 +33,12 @@ function getPagination(currentPage, totalPages) {
     let start = Math.max(2, currentPage - delta);
     let end = Math.min(totalPages - 1, currentPage + delta);
 
-    if (currentPage - delta <= 1) {
-        end = Math.min(5, totalPages - 1);
-    }
+    if (currentPage - delta <= 1) end = Math.min(5, totalPages - 1);
+    if (currentPage + delta >= totalPages) start = Math.max(totalPages - 4, 2);
 
-    if (currentPage + delta >= totalPages) {
-        start = Math.max(totalPages - 4, 2);
-    }
-
-    for (let i = start; i <= end; i++) {
-        range.push(i);
-    }
-
-    if (start > 2) {
-        range.unshift('...');
-    }
-
-    if (end < totalPages - 1) {
-        range.push('...');
-    }
-
+    for (let i = start; i <= end; i++) range.push(i);
+    if (start > 2) range.unshift('...');
+    if (end < totalPages - 1) range.push('...');
     range.unshift(1);
     if (totalPages > 1) range.push(totalPages);
 
@@ -66,9 +52,9 @@ app.get('/', async (req, res) => {
         const search = req.query.search || '';
         const data = await fetchAnimeData();
 
-        const filteredAnime = data.filter(anime => 
+        const filteredAnime = data.filter(anime =>
             anime.title.toLowerCase().includes(search.toLowerCase()) ||
-            anime.synopsis.toLowerCase().includes(search.toLowerCase())
+            anime.genre.toLowerCase().includes(search.toLowerCase())
         );
 
         const pageSize = 10;
@@ -89,7 +75,6 @@ app.get('/', async (req, res) => {
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
                     body { background-color: #121212; color: #fff; }
-                    .anime-thumbnail { max-height: 200px; }
                 </style>
             </head>
             <body>
@@ -106,7 +91,8 @@ app.get('/', async (req, res) => {
                                     <img src="${anime.thumbnail}" class="card-img-top anime-thumbnail" alt="${anime.title}">
                                     <div class="card-body">
                                         <h5 class="card-title">${anime.title}</h5>
-                                        <p class="card-text">${anime.synopsis}</p>
+                                        <p class="card-text">${anime.genre}</p>
+                                        <p class="card-text">${anime.episodes.length} episodes</p>
                                         <a href="/stream?anime-id=${anime.animeId}&episode=1" class="btn btn-primary">Watch</a>
                                     </div>
                                 </div>
@@ -168,7 +154,7 @@ app.get('/stream', async (req, res) => {
                 <div class="container mt-5">
                     <h1>${anime.title} - Episode ${episode}</h1>
                     <div class="mb-4">
-                        <video src="${anime.episodes[episode - 1]?.link || '#'}" controls class="w-100"></video>
+                        <iframe src="${anime.episodes[episode - 1]?.link || '#'}" class="w-100" height="500"></iframe>
                     </div>
                     <div class="d-flex justify-content-between">
                         <a href="/stream?anime-id=${animeId}&episode=${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}">Previous Episode</a>
@@ -178,6 +164,9 @@ app.get('/stream', async (req, res) => {
                         <label for="goToEpisode">Go to Episode:</label>
                         <input type="number" id="goToEpisode" class="form-control w-25 d-inline" min="1" max="${anime.episodes.length}" value="${episode}">
                         <button onclick="goToEpisode()" class="btn btn-outline-light">Go</button>
+                    </div>
+                    <div class="mt-4">
+                        <p>${anime.synopsis}</p>
                     </div>
                 </div>
                 <script>
@@ -195,7 +184,6 @@ app.get('/stream', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 // Admin endpoint for adding new anime and episodes
 app.get('/admin', (req, res) => {
@@ -293,19 +281,20 @@ app.post('/admin/add-anime', async (req, res) => {
 // Handle POST request to add a new episode
 app.post('/admin/add-episode', async (req, res) => {
     try {
-        const animeId = req.body.animeId;
-        const episodeNumber = req.body.episode;
-        const videoLink = req.body.link;
+        const { animeId, episode, link } = req.body;
+        const episodeNumber = parseInt(episode);
 
         const data = await fetchAnimeData();
-
         const anime = data.find(a => a.animeId === animeId);
 
         if (anime) {
-            anime.episodes.push({
-                episodeNumber,
-                link: videoLink
-            });
+            const existingEpisode = anime.episodes.find(e => e.episodeNumber === episodeNumber);
+
+            if (existingEpisode) {
+                existingEpisode.link = link;
+            } else {
+                anime.episodes.push({ episodeNumber, link });
+            }
 
             await writeAnimeData(data);
         } else {
