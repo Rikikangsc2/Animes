@@ -71,6 +71,7 @@ app.get('/', async (req, res) => {
                 <title>PurNime - Streaming Anime & Donghua</title>
                 <meta name="description" content="PurNime adalah situs streaming anime dan donghua dengan koleksi episode terbaru dan populer.">
                 <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
+                <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
@@ -180,6 +181,7 @@ app.get('/stream', async (req, res) => {
                 <title>${anime.title} - Episode ${episode} | PurNime</title>
                 <meta name="description" content="Tonton ${anime.title} episode ${episode} di PurNime, situs streaming anime dan donghua terbaik.">
                 <meta name="keywords" content="${anime.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
+                <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
