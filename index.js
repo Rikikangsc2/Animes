@@ -52,9 +52,9 @@ app.get('/', async (req, res) => {
         const search = req.query.search || '';
         const data = await fetchAnimeData();
 
-        const filteredAnime = data.filter(anime =>
-            anime.title.toLowerCase().includes(search.toLowerCase()) ||
-            anime.genre.toLowerCase().includes(search.toLowerCase())
+        const filteredAnime = data.filter(anime => 
+            anime.title.toLowerCase().includes(search.toLowerCase()) || 
+            anime.genre.toLowerCase().includes(search.toLowerCase()) 
         );
 
         const pageSize = 10;
@@ -84,7 +84,7 @@ app.get('/', async (req, res) => {
             <body>
                 <div class="container mt-5">
                     <h1 class="text-center">PurNime</h1>
-                    <form class="d-flex justify-content-center mb-4">
+                    <form class="d-flex justify-content-center mb-4" action="/" method="GET">
                         <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search" value="${search}">
                         <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
@@ -107,7 +107,7 @@ app.get('/', async (req, res) => {
                         <ul class="pagination justify-content-center">
                             ${pagination.map(p => `
                                 <li class="page-item ${p === page ? 'active' : ''} ${typeof p === 'number' ? '' : 'disabled'}">
-                                    <a class="page-link" href="/?page=${p === '...' ? page : p}&search=${search}">${p}</a>
+                                    <a class="page-link" href="/?page=${typeof p === 'number' ? p : page}&search=${search}">${p}</a>
                                 </li>
                             `).join('')}
                         </ul>
@@ -138,13 +138,13 @@ app.get('/', async (req, res) => {
                                 <button onclick="removeFromHistory('${item.animeId}')" class="btn btn-danger btn-sm float-end">Remove</button>
                             </li>
                         `).join('');
-                        document.body.innerHTML = `
+                        document.body.innerHTML = \`
                             <div class="container mt-5">
                                 <h1>History</h1>
                                 <ul class="list-group">${historyList}</ul>
                                 <a href="/" class="btn btn-primary mt-4">Back to Home</a>
                             </div>
-                        `;
+                        \`;
                     });
 
                     // Remove history item from local storage
