@@ -52,8 +52,8 @@ app.get('/', async (req, res) => {
         const search = req.query.search || '';
         let data = await fetchAnimeData();
 
-        // Sort data to have the latest anime first
-        data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Sort data by lastModified timestamp in descending order
+        data.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
 
         const filteredAnime = data.filter(anime =>
             anime.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -306,7 +306,7 @@ app.post('/admin/add-anime', async (req, res) => {
             genre: req.body.genre,
             animeId: req.body.animeId,
             episodes: [],
-            date: new Date().toISOString() // Add a date property
+            lastModified: new Date().toISOString()
         };
 
         const data = await fetchAnimeData();
@@ -338,6 +338,9 @@ app.post('/admin/add-episode', async (req, res) => {
             } else {
                 anime.episodes.push({ episodeNumber, link });
             }
+
+            // Update lastModified timestamp
+            anime.lastModified = new Date().toISOString();
 
             await writeAnimeData(data);
         } else {
