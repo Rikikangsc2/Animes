@@ -186,26 +186,23 @@ app.get('/', async (req, res) => {
 app.get('/anime/:animeId/:episode?', async (req, res) => {
     try {
         const animeId = req.params.animeId;
-        const episode = parseInt(req.params.episode) || 1;
+        const episodeNumber = parseInt(req.params.episode) || 1;
 
         // Fetch anime details and episode list
         const animeDetail = await fetchAnimeDetail(animeId);
         const episodeList = animeDetail.episode_list || [];
 
         // Ensure the episode exists
-        if (episode < 1 || episode > episodeList.length) {
+        if (episodeNumber < 1 || episodeNumber > episodeList.length) {
             return res.status(404).send('Episode not found');
         }
 
-        // Calculate the correct episode index based on the requested episode
-        const selectedEpisodeIndex = episode - 1; 
-
         // Fetch streaming details for the selected episode
-        const episodeData = await fetchEpisodeStream(episodeList[selectedEpisodeIndex].episode_endpoint);
+        const selectedEpisode = episodeList[episodeList.length - episodeNumber];
+        const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
 
-        // Find the next and previous episode numbers, handling edge cases
-        const nextEpisode = episode + 1;
-        const prevEpisode = episode - 1;
+        const nextEpisode = episodeNumber + 1;
+        const prevEpisode = episodeNumber - 1;
 
         res.send(`
             <!DOCTYPE html>
@@ -213,8 +210,8 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${animeDetail.anime_detail.title} - Episode ${episode} | PurNime</title>
-                <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episode} di PurNime, situs streaming anime dan donghua terbaik.">
+                <title>${animeDetail.anime_detail.title} - Episode ${episodeNumber} | PurNime</title>
+                <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PurNime, situs streaming anime dan donghua terbaik.">
                 <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
                 <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
@@ -227,7 +224,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             </head>
             <body>
                 <div class="container mt-5">
-                    <h1>${animeDetail.anime_detail.title} - Episode ${episode}</h1>
+                    <h1>${animeDetail.anime_detail.title} - Episode ${episodeNumber}</h1>
                     <div class="iframe-container">
                         ${episodeData.streamLink ? `<iframe src="${episodeData.streamLink}" frameborder="0" allowfullscreen></iframe>` : '<p>Belum update kak tungguin ya</p>'}
                     </div>
@@ -237,7 +234,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                     </div>
                     <div class="mt-4">
                         <label for="goToEpisode">Go to Episode:</label>
-                        <input type="number" id="goToEpisode" class="form-control w-25 d-inline" min="1" max="${episodeList.length}" value="${episode}">
+                        <input type="number" id="goToEpisode" class="form-control w-25 d-inline" min="1" max="${episodeList.length}" value="${episodeNumber}">
                         <button onclick="goToEpisode()" class="btn btn-outline-light">Go</button>
                     </div>
                     <div class="mt-4">
@@ -260,6 +257,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Endpoint for handling anime details
 app.get('/anime/:animeId', async (req, res) => {
