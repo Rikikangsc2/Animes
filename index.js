@@ -6,23 +6,47 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Helper function to fetch anime data with error handling
-async function fetchAnimeData() {
+// Helper function to fetch ongoing anime list
+async function fetchAnimeData(page) {
     try {
-        const response = await axios.get('http://nue-db.vercel.app/read/nuenime1');
-        return response.data || [];
+        const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/ongoing/${page}`);
+        return response.data.ongoing || [];
     } catch (error) {
         console.error('Error fetching data:', error.message);
         return [];
     }
 }
 
-// Helper function to write anime data with error handling
-async function writeAnimeData(data) {
+// Function to fetch anime search results
+async function searchAnime(query) {
     try {
-        await axios.post('http://nue-db.vercel.app/write/nuenime1', { json: data });
+        const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/search/${encodeURIComponent(query)}`);
+        return response.data.search || [];
     } catch (error) {
-        console.error('Error writing data:', error.message);
+        console.error('Error searching anime:', error.message);
+        return [];
+    }
+}
+
+// Function to fetch anime details and episode list
+async function fetchAnimeDetail(endpoint) {
+    try {
+        const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/detail/${endpoint}`);
+        return response.data || {};
+    } catch (error) {
+        console.error('Error fetching anime detail:', error.message);
+        return {};
+    }
+}
+
+// Function to fetch streaming link for an episode
+async function fetchEpisodeStream(endpoint) {
+    try {
+        const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/episode/${endpoint}`);
+        return response.data || {};
+    } catch (error) {
+        console.error('Error fetching episode stream:', error.message);
+        return {};
     }
 }
 
@@ -50,19 +74,19 @@ app.get('/', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const search = req.query.search || '';
-        let data = await fetchAnimeData();
+        let animeData;
 
-        // Sort data by lastModified timestamp in descending order
-        data.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
-
-        const filteredAnime = data.filter(anime =>
-            anime.title.toLowerCase().includes(search.toLowerCase()) ||
-            anime.genre.toLowerCase().includes(search.toLowerCase())
-        );
+        if (search) {
+            const searchResults = await searchAnime(search);
+            animeData = await Promise.all(searchResults.map(anime => fetchAnimeDetail(anime.endpoint)));
+        } else {
+            const ongoingAnime = await fetchAnimeData(page);
+            animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
+        }
 
         const pageSize = 10;
-        const paginatedAnime = filteredAnime.slice((page - 1) * pageSize, page * pageSize);
-        const totalPages = Math.ceil(filteredAnime.length / pageSize);
+        const paginatedAnime = animeData.slice((page - 1) * pageSize, page * pageSize);
+        const totalPages = Math.ceil(animeData.length / pageSize);
         const pagination = getPagination(page, totalPages);
 
         res.send(`
@@ -125,12 +149,13 @@ app.get('/', async (req, res) => {
                         ${paginatedAnime.map(anime => `
                             <div class="col">
                                 <div class="card h-100 text-white">
-                                    <a href="/stream?anime-id=${anime.animeId}&episode=${anime.episodes.length}" style="text-decoration: none;"> 
-                                        <img src="${anime.thumbnail}" class="card-img-top anime-thumbnail" alt="${anime.title}">
+                                    <a href="/anime/${anime.endpoint}" style="text-decoration: none;"> 
+                                        <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
                                         <div class="card-body">
-                                            <h5 class="card-title">${anime.title}</h5>
-                                            <p class="card-text">${anime.genre}</p>
-                                            <p class="card-text">${anime.episodes.length} episodes</p>
+                                            <h5 class="card-title">${anime.anime_detail.title}</h5>
+                                            <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
+                                            <p class="card-text">${anime.episode_list[0].episode_date}</p>
+                                            <p class="card-text">${anime.anime_detail.detail[7]}</p>
                                         </div>
                                     </a>
                                 </div>
@@ -158,21 +183,28 @@ app.get('/', async (req, res) => {
 });
 
 // Endpoint for streaming anime episodes
-app.get('/stream', async (req, res) => {
+app.get('/anime/:animeId/:episode?', async (req, res) => {
     try {
-        const animeId = req.query['anime-id'];
-        const episode = parseInt(req.query.episode) || 1;
-        const data = await fetchAnimeData();
+        const animeId = req.params.animeId;
+        const episode = parseInt(req.params.episode) || 1;
 
-        const anime = data.find(a => a.animeId === animeId);
+        // Fetch anime details and episode list
+        const animeDetail = await fetchAnimeDetail(animeId);
+        const episodeList = animeDetail.episode_list || [];
 
-        if (!anime) {
-            return res.status(404).send('Anime not found');
+        // Ensure the episode exists
+        if (episode < 1 || episode > episodeList.length) {
+            return res.status(404).send('Episode not found');
         }
+        const selectedEpisode = episodeList[episode - 1];
+        const episodeEndpoint = selectedEpisode.episode_endpoint;
+
+        // Fetch streaming details for the selected episode
+        const episodeData = await fetchEpisodeStream(episodeEndpoint);
+
 
         const nextEpisode = episode + 1;
         const prevEpisode = episode - 1;
-        const episodeLink = anime.episodes[episode - 1]?.link || '';
 
         res.send(`
             <!DOCTYPE html>
@@ -180,9 +212,9 @@ app.get('/stream', async (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${anime.title} - Episode ${episode} | PurNime</title>
-                <meta name="description" content="Tonton ${anime.title} episode ${episode} di PurNime, situs streaming anime dan donghua terbaik.">
-                <meta name="keywords" content="${anime.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
+                <title>${animeDetail.anime_detail.title} - Episode ${episode} | PurNime</title>
+                <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episode} di PurNime, situs streaming anime dan donghua terbaik.">
+                <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
                 <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
@@ -194,27 +226,28 @@ app.get('/stream', async (req, res) => {
             </head>
             <body>
                 <div class="container mt-5">
-                    <h1>${anime.title} - Episode ${episode}</h1>
+                    <h1>${animeDetail.anime_detail.title} - Episode ${episode}</h1>
                     <div class="iframe-container">
-                        ${episodeLink ? `<iframe src="${episodeLink}" frameborder="0" allowfullscreen></iframe>` : '<p>Belum update kak tungguin ya</p>'}
+                        ${episodeData.streamLink ? `<iframe src="${episodeData.streamLink}" frameborder="0" allowfullscreen></iframe>` : '<p>Belum update kak tungguin ya</p>'}
                     </div>
                     <div class="d-flex justify-content-between mt-4">
-                        <a href="/stream?anime-id=${animeId}&episode=${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}">Previous Episode</a>
-                        <a href="/stream?anime-id=${animeId}&episode=${nextEpisode}" class="btn btn-outline-light ${nextEpisode > anime.episodes.length ? 'disabled' : ''}">Next Episode</a>
+                        <a href="/anime/${animeId}/${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}">Previous Episode</a>
+                        <a href="/anime/${animeId}/${nextEpisode}" class="btn btn-outline-light ${nextEpisode > episodeList.length ? 'disabled' : ''}">Next Episode</a>
                     </div>
                     <div class="mt-4">
                         <label for="goToEpisode">Go to Episode:</label>
-                        <input type="number" id="goToEpisode" class="form-control w-25 d-inline" min="1" max="${anime.episodes.length}" value="${episode}">
+                        <input type="number" id="goToEpisode" class="form-control w-25 d-inline" min="1" max="${episodeList.length}" value="${episode}">
                         <button onclick="goToEpisode()" class="btn btn-outline-light">Go</button>
                     </div>
                     <div class="mt-4">
-                        <p>${anime.synopsis}</p>
+                        <h3>Synopsis</h3>
+                        <p>${animeDetail.anime_detail.sinopsis}</p>
                     </div>
                 </div>
                 <script>
                     function goToEpisode() {
                         const episode = document.getElementById('goToEpisode').value;
-                        window.location.href = '/stream?anime-id=${animeId}&episode=' + episode;
+                        window.location.href = '/anime/${animeId}/' + episode;
                     }
                 </script>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -227,16 +260,24 @@ app.get('/stream', async (req, res) => {
     }
 });
 
-// Admin endpoint for adding new anime and episodes
-app.get('/admin', (req, res) => {
+// Endpoint for handling anime details
+app.get('/anime/:animeId', async (req, res) => {
     try {
+        const animeId = req.params.animeId;
+        const animeDetail = await fetchAnimeDetail(animeId);
+
+        // Render the anime details page, including the episode list
         res.send(`
             <!DOCTYPE html>
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Admin - Anidong</title>
+                <title>${animeDetail.anime_detail.title} | PurNime</title>
+                <meta name="description" content="${animeDetail.anime_detail.sinopsis}">
+                <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
+                <meta name="google-adsense-account" content="ca-pub-5220496608138780">
+                <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
                     body { background-color: #121212; color: #fff; }
@@ -244,116 +285,43 @@ app.get('/admin', (req, res) => {
             </head>
             <body>
                 <div class="container mt-5">
-                    <h1 class="text-center">Admin - Anidong</h1>
-                    <form action="/admin/add-anime" method="POST" class="mb-5">
-                        <h2>Add Anime</h2>
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Title</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
+                    <h1>${animeDetail.anime_detail.title}</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="${animeDetail.anime_detail.thumb}" class="img-fluid" alt="${animeDetail.anime_detail.title}">
                         </div>
-                        <div class="mb-3">
-                            <label for="synopsis" class="form-label">Synopsis</label>
-                            <textarea class="form-control" id="synopsis" name="synopsis" rows="3" required></textarea>
+                        <div class="col-md-8">
+                            <h3>Synopsis:</h3>
+                            <p>${animeDetail.anime_detail.sinopsis}</p>
+                            <h3>Details:</h3>
+                            <ul>
+                                ${animeDetail.anime_detail.detail.map(detail => `<li>${detail}</li>`).join('')}
+                            </ul>
+                            <h3>Genre:</h3>
+                            <ul>
+                                ${animeDetail.anime_detail.genres.map(genre => `<li>${genre}</li>`).join('')}
+                            </ul>
+                            <h3>Episode List:</h3>
+                            <ul>
+                                ${animeDetail.episode_list.map((episode, index) => `
+                                    <li>
+                                        <a href="/anime/${animeId}/${index + 1}">${episode.episode_title}</a>
+                                    </li>
+                                `).join('')}
+                            </ul>
                         </div>
-                        <div class="mb-3">
-                            <label for="thumbnail" class="form-label">Thumbnail URL</label>
-                            <input type="text" class="form-control" id="thumbnail" name="thumbnail" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="genre" class="form-label">Genre</label>
-                            <input type="text" class="form-control" id="genre" name="genre" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="animeId" class="form-label">Anime ID</label>
-                            <input type="text" class="form-control" id="animeId" name="animeId" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Anime</button>
-                    </form>
-                    <form action="/admin/add-episode" method="POST">
-                        <h2>Add Episode</h2>
-                        <div class="mb-3">
-                            <label for="animeId" class="form-label">Anime ID</label>
-                            <input type="text" class="form-control" id="animeId" name="animeId" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="episode" class="form-label">Episode Number</label>
-                            <input type="number" class="form-control" id="episode" name="episode" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="link" class="form-label">Video Link</label>
-                            <input type="text" class="form-control" id="link" name="link" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Episode</button>
-                    </form>
+                    </div>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
             </body>
             </html>
         `);
     } catch (error) {
-        console.error('Error rendering admin page:', error.message);
+        console.error('Error rendering anime details page:', error.message);
         res.status(500).send('Internal Server Error');
     }
 });
 
-// Handle POST request to add a new anime
-app.post('/admin/add-anime', async (req, res) => {
-    try {
-        const newAnime = {
-            title: req.body.title,
-            synopsis: req.body.synopsis,
-            thumbnail: req.body.thumbnail,
-            genre: req.body.genre,
-            animeId: req.body.animeId,
-            episodes: [],
-            lastModified: new Date().toISOString()
-        };
-
-        const data = await fetchAnimeData();
-        data.push(newAnime);
-
-        await writeAnimeData(data);
-
-        res.redirect('/admin');
-    } catch (error) {
-        console.error('Error adding new anime:', error.message);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-// Handle POST request to add a new episode
-app.post('/admin/add-episode', async (req, res) => {
-    try {
-        const { animeId, episode, link } = req.body;
-        const episodeNumber = parseInt(episode);
-
-        const data = await fetchAnimeData();
-        const anime = data.find(a => a.animeId === animeId);
-
-        if (anime) {
-            const existingEpisode = anime.episodes.find(e => e.episodeNumber === episodeNumber);
-
-            if (existingEpisode) {
-                existingEpisode.link = link;
-            } else {
-                anime.episodes.push({ episodeNumber, link });
-            }
-
-            // Update lastModified timestamp
-            anime.lastModified = new Date().toISOString();
-
-            await writeAnimeData(data);
-        } else {
-            console.error('Anime ID not found:', animeId);
-            return res.status(404).send('Anime not found');
-        }
-
-        res.redirect('/admin');
-    } catch (error) {
-        console.error('Error adding new episode:', error.message);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
