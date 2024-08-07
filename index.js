@@ -196,13 +196,14 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         if (episode < 1 || episode > episodeList.length) {
             return res.status(404).send('Episode not found');
         }
-        const selectedEpisode = episodeList[episode - 1];
-        const episodeEndpoint = selectedEpisode.episode_endpoint;
+
+        // Calculate the correct episode index based on the requested episode
+        const selectedEpisodeIndex = episode - 1; 
 
         // Fetch streaming details for the selected episode
-        const episodeData = await fetchEpisodeStream(episodeEndpoint);
+        const episodeData = await fetchEpisodeStream(episodeList[selectedEpisodeIndex].episode_endpoint);
 
-
+        // Find the next and previous episode numbers, handling edge cases
         const nextEpisode = episode + 1;
         const prevEpisode = episode - 1;
 
