@@ -281,7 +281,9 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                         <h2>List Episode</h2>
                         <div class="list-group">
                             ${episodeList.map(episode => `
-                                <a href="/anime/${animeId}/${episodeList.length - episodeList.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">${episode.list_episode_title}</a>
+                                <a href="/anime/${animeId}/${episodeList.length - episodeList.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">
+                                    ${episode.episode_title}
+                                </a>
                             `).join('')}
                         </div>
                     </div>
@@ -299,7 +301,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 // Endpoint for handling anime details
 app.get('/anime/:animeId', async (req, res) => {
