@@ -32,7 +32,14 @@ async function searchAnime(query) {
 async function fetchAnimeDetail(endpoint) {
     try {
         const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/detail/${endpoint}`);
-        return response.data || {};
+        const animeDetail = response.data || {};
+
+        // Filter episodes that have valid 'episode-' prefix
+        animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode =>
+            episode.episode_endpoint.includes("episode-")
+        );
+
+        return animeDetail;
     } catch (error) {
         console.error('Error fetching anime detail:', error.message);
         return {};
@@ -154,7 +161,7 @@ app.get('/', async (req, res) => {
                                         <div class="card-body">
                                             <h5 class="card-title">${anime.anime_detail.title}</h5>
                                             <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
-                                            <p class="card-text">${anime.episode_list[0].episode_date}</p>
+                                            <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                                             <p class="card-text">${anime.anime_detail.detail[7]}</p>
                                         </div>
                                     </a>
@@ -232,8 +239,8 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                     <div class="mt-4">
                         <h2>List Episode</h2>
                         <div class="list-group">
-                            ${episodeData.list_episode.map(episode => `
-                                <a href="/anime/${animeId}/${episodeList.length - episodeData.list_episode.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.list_episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">${episode.list_episode_title}</a>
+                            ${episodeList.map(episode => `
+                                <a href="/anime/${animeId}/${episodeList.length - episodeList.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">${episode.episode_title}</a>
                             `).join('')}
                         </div>
                     </div>
