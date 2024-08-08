@@ -110,8 +110,8 @@ app.get('/', async (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>PurNime - Streaming Anime & Donghua</title>
-                <meta name="description" content="PurNime adalah situs streaming anime dan donghua dengan koleksi episode terbaru dan populer.">
+                <title>PurNime - Streaming Anime Gratis minim iklan</title>
+                <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
                 <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
                 <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
@@ -155,7 +155,7 @@ app.get('/', async (req, res) => {
             </head>
             <body>
                 <div class="container mt-5">
-                    <h1 class="text-center mb-4">PurNime</h1>
+                    <h1 class="text-center mb-4">PUR-NIME TV</h1>
                     <form class="d-flex justify-content-center mb-4">
                         <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search" value="${search}">
                         <button class="btn btn-outline-light" type="submit">Search</button>
