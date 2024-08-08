@@ -205,6 +205,32 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         const selectedEpisode = episodeList[episodeList.length - episodeNumber];
         const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
 
+        // Prepare streaming options
+        const serverOptions = [];
+        const mirrors = ['mirror_embed1', 'mirror_embed2', 'mirror_embed3'];
+
+        mirrors.forEach(mirrorKey => {
+            const mirrorData = episodeData[mirrorKey];
+            if (mirrorData && mirrorData.straming.length > 0) {
+                mirrorData.straming.forEach(server => {
+                    serverOptions.push({
+                        name: `${server.driver.trim()} - ${mirrorData.quality}`,
+                        link: server.link
+                    });
+                });
+            }
+        });
+
+        // Determine the selected streaming URL
+        let streamingUrl = episodeData.streamLink; // Default streamLink
+        if (req.query.server) {
+            const selectedServer = serverOptions.find(server => server.name === req.query.server);
+            if (selectedServer) {
+                const streamResponse = await axios.get(`https://nya-otakudesu.vercel.app${selectedServer.link}`);
+                streamingUrl = streamResponse.data.streaming_url || streamingUrl;
+            }
+        }
+
         const nextEpisode = episodeNumber + 1;
         const prevEpisode = episodeNumber - 1;
 
@@ -229,8 +255,23 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             <body>
                 <div class="container mt-5">
                     <h1>${animeDetail.anime_detail.title}</h1>
+                    <div class="d-flex justify-content-between mb-4">
+                        <a href="/" class="btn btn-outline-light">Home</a>
+                        <form method="GET" class="d-inline-flex">
+                            <input type="hidden" name="episode" value="${episodeNumber}">
+                            <select name="server" class="form-select me-2" onchange="this.form.submit()">
+                                <option selected disabled>Select Server</option>
+                                ${serverOptions.map(server => `
+                                    <option value="${server.name}" ${req.query.server === server.name ? 'selected' : ''}>
+                                        ${server.name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                            <noscript><button type="submit" class="btn btn-outline-light">Switch</button></noscript>
+                        </form>
+                    </div>
                     <div class="iframe-container">
-                        ${episodeData.streamLink ? `<iframe src="${episodeData.streamLink}" frameborder="0" allowfullscreen></iframe>` : '<h1>Silahkan spam tombol next episode atau back episode sampe muncul list episode, Masalah ini kami sedang mencari solusinya</h1>'}
+                        <iframe src="${streamingUrl}" frameborder="0" allowfullscreen></iframe>
                     </div>
                     <div class="d-flex justify-content-between mt-4">
                         <a href="/anime/${animeId}/${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}">Previous Episode</a>
@@ -240,7 +281,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                         <h2>List Episode</h2>
                         <div class="list-group">
                             ${episodeList.map(episode => `
-                                <a href="/anime/${animeId}/${episodeList.length - episodeList.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">${episode.episode_title}</a>
+                                <a href="/anime/${animeId}/${episodeList.length - episodeList.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">${episode.list_episode_title}</a>
                             `).join('')}
                         </div>
                     </div>
@@ -258,6 +299,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Endpoint for handling anime details
 app.get('/anime/:animeId', async (req, res) => {
