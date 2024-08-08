@@ -232,8 +232,8 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                     <div class="mt-4">
                         <h2>List Episode</h2>
                         <div class="list-group">
-                            ${episodeData.list_episode.map(episode => `
-                                <a href="/anime/${animeId}/${episodeList.length - episodeData.list_episode.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.list_episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">${episode.list_episode_title}</a>
+                            ${episodeData.list_episode.map((episode, index) => `
+                                <a href="/anime/${animeId}/${episodeData.list_episode.length - index}" class="list-group-item list-group-item-action ${episode.list_episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">${episode.list_episode_title}</a>
                             `).join('')}
                         </div>
                     </div>
