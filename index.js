@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require('axios');
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser')
+
+const basenya = "https://api-otakudesu-livid.vercel.app"
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -9,7 +11,7 @@ app.use(express.static('public'));
 // Helper function to fetch ongoing anime list
 async function fetchAnimeData(page) {
     try {
-        const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/ongoing/${page}`);
+        const response = await axios.get(`${basenya}/api/v1/ongoing/${page}`);
         return response.data.ongoing || [];
     } catch (error) {
         console.error('Error fetching data:', error.message);
@@ -20,7 +22,7 @@ async function fetchAnimeData(page) {
 // Function to fetch anime search results
 async function searchAnime(query) {
     try {
-        const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/search/${encodeURIComponent(query)}`);
+        const response = await axios.get(`${basenya}/api/v1/search/${encodeURIComponent(query)}`);
         return response.data.search || [];
     } catch (error) {
         console.error('Error searching anime:', error.message);
@@ -31,7 +33,7 @@ async function searchAnime(query) {
 // Function to fetch anime details and episode list
 async function fetchAnimeDetail(endpoint) {
     try {
-        const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/detail/${endpoint}`);
+        const response = await axios.get(`${basenya}/api/v1/detail/${endpoint}`);
         const animeDetail = response.data || {};
 
         // Filter episodes that have valid 'episode-' prefix
@@ -49,7 +51,7 @@ async function fetchAnimeDetail(endpoint) {
 // Function to fetch streaming link for an episode
 async function fetchEpisodeStream(endpoint) {
     try {
-        const response = await axios.get(`https://nya-otakudesu.vercel.app/api/v1/episode/${endpoint}`);
+        const response = await axios.get(`${basenya}/api/v1/episode/${endpoint}`);
         return response.data || {};
     } catch (error) {
         console.error('Error fetching episode stream:', error.message);
@@ -226,7 +228,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         if (req.query.server) {
             const selectedServer = serverOptions.find(server => server.name === req.query.server);
             if (selectedServer) {
-                const streamResponse = await axios.get(`https://nya-otakudesu.vercel.app${selectedServer.link}`);
+                const streamResponse = await axios.get(`${basenya}${selectedServer.link}`);
                 streamingUrl = streamResponse.data.streaming_url || streamingUrl;
             }
         }
