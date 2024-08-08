@@ -1,8 +1,8 @@
 const express = require('express');
 const axios = require('axios');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 
-const basenya = "https://api-otakudesu-livid.vercel.app"
+const basenya = "https://api-otakudesu-livid.vercel.app";
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -77,6 +77,12 @@ function getPagination(currentPage, totalPages) {
 
     return range;
 }
+
+// Middleware to set caching headers
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours (86400 seconds)
+    next();
+});
 
 // Endpoint for displaying anime list with pagination and search
 app.get('/', async (req, res) => {
@@ -365,7 +371,6 @@ app.get('/anime/:animeId', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
