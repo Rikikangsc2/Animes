@@ -1,3 +1,4 @@
+//cape bang
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
@@ -113,34 +114,22 @@ app.get('/', async (req, res) => {
                 <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
                 <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
                 <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
+                <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
-                    body {
-                        background-color: #0d0d0d;
-                        color: #fff;
+                    body { 
+                        background-color: #121212; 
+                        color: #fff; 
                         font-family: 'Arial', sans-serif;
                     }
-                    .container { position: relative; }
-                    .watermark {
-                        position: absolute;
-                        bottom: 10px;
-                        right: 10px;
-                        opacity: 0.1;
-                        font-size: 5rem;
-                        font-weight: bold;
-                        color: #007bff;
-                        user-select: none;
-                        pointer-events: none;
-                    }
-                    .anime-thumbnail {
-                        max-height: 230px;
-                        border-radius: 10px;
+                    .anime-thumbnail { 
+                        max-height: 230px; 
+                        border-radius: 10px; 
                     }
                     .card {
                         border: none;
-                        background: #1c1c1c;
-                        border-radius: 10px;
+                        background: transparent;
                     }
                     .card-title {
                         font-size: 1.2rem;
@@ -163,15 +152,6 @@ app.get('/', async (req, res) => {
                     .btn-primary:hover {
                         background-color: #0056b3;
                     }
-                    .pagination .page-link {
-                        background-color: #1c1c1c;
-                        color: #007bff;
-                        border: none;
-                    }
-                    .pagination .page-item.active .page-link {
-                        background-color: #007bff;
-                        color: #fff;
-                    }
                 </style>
             </head>
             <body>
@@ -185,11 +165,10 @@ app.get('/', async (req, res) => {
                         ${paginatedAnime.map(anime => `
                             <div class="col">
                                 <div class="card h-100 text-white">
-                                    <a href="/anime/${anime.endpoint}" style="text-decoration: none;">
+                                    <a href="/anime/${anime.endpoint}" style="text-decoration: none;"> 
                                         <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
                                         <div class="card-body">
                                             <h5 class="card-title">${anime.anime_detail.title}</h5>
-                                            <p class="card-text">${anime.anime_detail.genres.join(', ')}</p>
                                             <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                                             <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                                             <p class="card-text">${anime.anime_detail.detail[7]}</p>
@@ -203,12 +182,11 @@ app.get('/', async (req, res) => {
                         <ul class="pagination justify-content-center">
                             ${pagination.map(p => `
                                 <li class="page-item ${p === page ? 'active' : ''} ${typeof p === 'number' ? '' : 'disabled'}">
-                                    <a class="page-link" href="/?page=${p === '...' ? page : p}&search=${search}">${p}</a>
+                                    <a class="page-link bg-dark text-light" href="/?page=${p === '...' ? page : p}&search=${search}">${p}</a>
                                 </li>
                             `).join('')}
                         </ul>
                     </nav>
-                    <div class="watermark">PURNIME - TV</div>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
             </body>
@@ -274,23 +252,13 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                 <title>Nonton ${animeDetail.anime_detail.title} - Episode ${episodeNumber} | PURNIME TV</title>
                 <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PURNIME TV, situs streaming anime terbaik.">
                 <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
+                <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
-                    body { background-color: #0d0d0d; color: #fff; }
+                    body { background-color: #121212; color: #fff; }
                     .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
                     .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-                    .watermark {
-                        position: absolute;
-                        bottom: 10px;
-                        right: 10px;
-                        opacity: 0.1;
-                        font-size: 5rem;
-                        font-weight: bold;
-                        color: #007bff;
-                        user-select: none;
-                        pointer-events: none;
-                    }
                 </style>
             </head>
             <body>
@@ -303,7 +271,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                             <select name="server" class="form-select me-2" onchange="this.form.submit()">
                                 <option selected disabled>Select Server</option>
                                 ${serverOptions.map(server => `
-                                    <option value="${server.name}" ${req.query.server === server.name ? 'selected' : ''}">
+                                    <option value="${server.name}" ${req.query.server === server.name ? 'selected' : ''}>
                                         ${server.name}
                                     </option>
                                 `).join('')}
@@ -332,7 +300,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                         <h3>Synopsis</h3>
                         <p>${animeDetail.anime_detail.sinopsis}</p>
                     </div>
-                    <div class="watermark">PURNIME - TV</div>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
             </body>
@@ -360,21 +327,11 @@ app.get('/anime/:animeId', async (req, res) => {
                 <title>${animeDetail.anime_detail.title} | PURNIME TV</title>
                 <meta name="description" content="${animeDetail.anime_detail.sinopsis}">
                 <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
+                <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
                 <style>
-                    body { background-color: #0d0d0d; color: #fff; }
-                    .watermark {
-                        position: absolute;
-                        bottom: 10px;
-                        right: 10px;
-                        opacity: 0.1;
-                        font-size: 5rem;
-                        font-weight: bold;
-                        color: #007bff;
-                        user-select: none;
-                        pointer-events: none;
-                    }
+                    body { background-color: #121212; color: #fff; }
                 </style>
             </head>
             <body>
@@ -405,7 +362,6 @@ app.get('/anime/:animeId', async (req, res) => {
                             </ul>
                         </div>
                     </div>
-                    <div class="watermark">PURNIME - TV</div>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
             </body>
