@@ -111,7 +111,7 @@ app.get('/', async (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>PurNime - Streaming Anime Gratis minim iklan</title>
+                <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
                 <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
                 <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
                 <meta name="google-adsense-account" content="ca-pub-5220496608138780">
@@ -249,8 +249,8 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${animeDetail.anime_detail.title} - Episode ${episodeNumber} | PurNime</title>
-                <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PurNime, situs streaming anime dan donghua terbaik.">
+                <title>Nonton ${animeDetail.anime_detail.title} - Episode ${episodeNumber} | PURNIME TV</title>
+                <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PURNIME TV, situs streaming anime terbaik.">
                 <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
                 <meta name="google-adsense-account" content="ca-pub-5220496608138780">
                 <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
@@ -324,7 +324,7 @@ app.get('/anime/:animeId', async (req, res) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${animeDetail.anime_detail.title} | PurNime</title>
+                <title>${animeDetail.anime_detail.title} | PURNIME TV</title>
                 <meta name="description" content="${animeDetail.anime_detail.sinopsis}">
                 <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
                 <meta name="google-adsense-account" content="ca-pub-5220496608138780">
