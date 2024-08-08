@@ -189,15 +189,16 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         const episodeNumber = parseInt(req.params.episode) || 1;
 
         const animeDetail = await fetchAnimeDetail(animeId);
-        const episodeList = animeDetail.episode_list || [];
+        const episodeData = await fetchEpisodeStream(animeDetail.episode_endpoint);
 
-        if (episodeNumber < 1 || episodeNumber > episodeList.length) {
+        const episodeListLength = episodeData.list_episode.length;
+
+        if (episodeNumber < 1 || episodeNumber > episodeListLength) {
             return res.status(404).send('Episode not found');
         }
 
-        const selectedEpisode = episodeList[episodeList.length - episodeNumber];
-        const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
-
+        const selectedEpisode = episodeData.list_episode[episodeListLength - episodeNumber];
+        
         const nextEpisode = episodeNumber + 1;
         const prevEpisode = episodeNumber - 1;
 
@@ -227,19 +228,23 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                     </div>
                     <div class="d-flex justify-content-between mt-4">
                         <a href="/anime/${animeId}/${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}">Previous Episode</a>
-                        <a href="/anime/${animeId}/${nextEpisode}" class="btn btn-outline-light ${nextEpisode > episodeList.length ? 'disabled' : ''}">Next Episode</a>
+                        <a href="/anime/${animeId}/${nextEpisode}" class="btn btn-outline-light ${nextEpisode > episodeListLength ? 'disabled' : ''}">Next Episode</a>
+                        <a href="/anime/${animeId}/${episodeListLength}" class="btn btn-outline-light">Last Episode</a>
                     </div>
                     <div class="mt-4">
                         <h2>List Episode</h2>
                         <div class="list-group">
-                            ${episodeData.list_episode.map((episode, index) => `
-                                <a href="/anime/${animeId}/${episodeData.list_episode.length - index}" class="list-group-item list-group-item-action ${episode.list_episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">${episode.list_episode_title}</a>
+                            ${episodeData.list_episode.map(episode => `
+                                <a href="/anime/${animeId}/${episodeListLength - episodeData.list_episode.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.list_episode_endpoint === selectedEpisode.list_episode_endpoint ? 'active' : ''}">${episode.list_episode_title}</a>
                             `).join('')}
                         </div>
                     </div>
                     <div class="mt-4">
                         <h3>Synopsis</h3>
                         <p>${animeDetail.anime_detail.sinopsis}</p>
+                    </div>
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-outline-light">Back to Home</a>
                     </div>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
