@@ -171,7 +171,7 @@ app.get('/', async (req, res) => {
                                             <h5 class="card-title">${anime.anime_detail.title}</h5>
                                             <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                                             <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
-                                            <p class="card-text">${anime.anime_detail.detail[7]}</p>
+                                            <p class="card-text">${anime.anime_detail.detail[10]}</p>
                                         </div>
                                     </a>
                                 </div>
