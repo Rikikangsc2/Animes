@@ -259,12 +259,31 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                     body { background-color: #121212; color: #fff; }
                     .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
                     .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+                    .anime-detail { display: flex; gap: 20px; }
+                    .anime-thumb img { max-width: 200px; border-radius: 8px; }
+                    .anime-info { flex-grow: 1; }
                 </style>
             </head>
             <body>
                 <div class="container mt-5">
-                    <h1>${animeDetail.anime_detail.title}</h1>
-                    <div class="d-flex justify-content-between mb-4">
+                    <div class="anime-detail mb-4">
+                        <div class="anime-thumb">
+                            <img src="${animeDetail.anime_detail.thumb}" alt="${animeDetail.anime_detail.title}">
+                        </div>
+                        <div class="anime-info">
+                            <h1>${animeDetail.anime_detail.title}</h1>
+                            <ul>
+                                ${animeDetail.anime_detail.detail.map(detail => `
+                                    <li>${detail}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <h3>Synopsis</h3>
+                        <p>${animeDetail.anime_detail.sinopsis}</p>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4 mt-4">
                         <a href="/" class="btn btn-outline-light">Home</a>
                         <form method="GET" class="d-inline-flex">
                             <input type="hidden" name="episode" value="${episodeNumber}">
@@ -295,10 +314,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                                 </a>
                             `).join('')}
                         </div>
-                    </div>
-                    <div class="mt-4">
-                        <h3>Synopsis</h3>
-                        <p>${animeDetail.anime_detail.sinopsis}</p>
                     </div>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
