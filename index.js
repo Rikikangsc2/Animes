@@ -89,19 +89,22 @@ app.get('/', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const search = req.query.search || '';
-        let animeData;
+        const pageSize = 100;
+        let animeData = [];
+        let totalItems = 0;
 
         if (search) {
             const searchResults = await searchAnime(search);
-            animeData = await Promise.all(searchResults.map(anime => fetchAnimeDetail(anime.endpoint)));
+            totalItems = searchResults.length;
+            const paginatedSearchResults = searchResults.slice((page - 1) * pageSize, page * pageSize);
+            animeData = await Promise.all(paginatedSearchResults.map(anime => fetchAnimeDetail(anime.endpoint)));
         } else {
-            const ongoingAnime = await fetchAnimeData(page);
+            const ongoingAnime = await fetchAnimeData(page);  // Pastikan fetchAnimeData mendukung pagination
+            totalItems = ongoingAnime.totalItems || ongoingAnime.length;  // Ambil total item dari API jika ada
             animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
         }
 
-        const pageSize = 100;
-        const paginatedAnime = animeData.slice((page - 1) * pageSize, page * pageSize);
-        const totalPages = Math.ceil(animeData.length / pageSize);
+        const totalPages = Math.ceil(totalItems / pageSize);
         const pagination = getPagination(page, totalPages);
 
         res.send(`
@@ -178,7 +181,7 @@ app.get('/', async (req, res) => {
                         <button class="btn btn-outline-light" type="submit">Search</button>
                     </form>
                     <div class="row row-cols-1 row-cols-md-3 g-4">
-                        ${paginatedAnime.map(anime => `
+                        ${animeData.map(anime => `
                             <div class="col">
                                 <div class="card h-100 text-white">
                                     <a href="/anime/${anime.endpoint}" style="text-decoration: none;"> 
@@ -196,13 +199,12 @@ app.get('/', async (req, res) => {
                     </div>
                     <nav aria-label="Page navigation" class="mt-4">
                         <ul class="pagination justify-content-center">
-    ${[1, 2, 3, 4, 5, 6].map(p => `
-        <li class="page-item ${page === p ? 'active' : ''}">
-            <a class="page-link bg-dark text-light" href="/?page=${p}&search=${search}">${p}</a>
-        </li>
-    `).join('')}
-</ul>
-
+                            ${Array.from({ length: totalPages }, (_, i) => `
+                                <li class="page-item ${page === (i + 1) ? 'active' : ''}">
+                                    <a class="page-link bg-dark text-light" href="/?page=${i + 1}&search=${search}">${i + 1}</a>
+                                </li>
+                            `).join('')}
+                        </ul>
                     </nav>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
