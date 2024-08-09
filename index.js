@@ -198,6 +198,16 @@ app.get('/', async (req, res) => {
 		'params' : {}
 	};
 </script>
+<script type="text/javascript">
+	atOptions = {
+		'key' : '820d725ae89df09a522cbf33be858824',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.topcreativeformat.com/820d725ae89df09a522cbf33be858824/invoke.js"></script>
 <script type="text/javascript" src="//www.topcreativeformat.com/820d725ae89df09a522cbf33be858824/invoke.js"></script>
                                     </a>
                                 </div>
@@ -342,6 +352,16 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                         <a href="/anime/${animeId}/${nextEpisode}" class="btn btn-outline-light ${nextEpisode > episodeList.length ? 'disabled' : ''}">Next Episode</a>
                     </div>
                     <div class="mt-4">
+		    <script type="text/javascript">
+	atOptions = {
+		'key' : '820d725ae89df09a522cbf33be858824',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.topcreativeformat.com/820d725ae89df09a522cbf33be858824/invoke.js"></script>
                         <h2>List Episode</h2>
                         <div class="list-group">
                             ${episodeList.map(episode => `
