@@ -99,7 +99,7 @@ app.get('/', async (req, res) => {
             animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
         }
 
-        const pageSize = 10;
+        const pageSize = 100;
         const paginatedAnime = animeData.slice((page - 1) * pageSize, page * pageSize);
         const totalPages = Math.ceil(animeData.length / pageSize);
         const pagination = getPagination(page, totalPages);
