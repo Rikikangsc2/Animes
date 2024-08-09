@@ -196,12 +196,13 @@ app.get('/', async (req, res) => {
                     </div>
                     <nav aria-label="Page navigation" class="mt-4">
                         <ul class="pagination justify-content-center">
-                            ${pagination.map(p => `
-                                <li class="page-item ${p === page ? 'active' : ''} ${typeof p === 'number' ? '' : 'disabled'}">
-                                    <a class="page-link bg-dark text-light" href="/?page=${p === '...' ? page : p}&search=${search}">${p}</a>
-                                </li>
-                            `).join('')}
-                        </ul>
+    ${[1, 2, 3, 4, 5, 6].map(p => `
+        <li class="page-item ${page === p ? 'active' : ''}">
+            <a class="page-link bg-dark text-light" href="/?page=${p}&search=${search}">${p}</a>
+        </li>
+    `).join('')}
+</ul>
+
                     </nav>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
