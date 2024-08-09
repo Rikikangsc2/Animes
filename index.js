@@ -110,7 +110,6 @@ app.get('/', async (req, res) => {
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
                 <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
                 <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
@@ -248,7 +247,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Nonton ${animeDetail.anime_detail.title} - Episode ${episodeNumber} | PURNIME TV</title>
                 <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PURNIME TV, situs streaming anime terbaik.">
                 <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
@@ -322,68 +320,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         `);
     } catch (error) {
         console.error('Error rendering stream page:', error.message);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-// Endpoint for handling anime details
-app.get('/anime/:animeId', async (req, res) => {
-    try {
-        const animeId = req.params.animeId;
-        const animeDetail = await fetchAnimeDetail(animeId);
-
-        // Render the anime details page, including the episode list
-        res.send(`
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${animeDetail.anime_detail.title} | PURNIME TV</title>
-                <meta name="description" content="${animeDetail.anime_detail.sinopsis}">
-                <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
-                <meta name="google-adsense-account" content="ca-pub-5220496608138780">
-                <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-                <style>
-                    body { background-color: #121212; color: #fff; }
-                </style>
-            </head>
-            <body>
-                <div class="container mt-5">
-                    <h1>${animeDetail.anime_detail.title}</h1>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <img src="${animeDetail.anime_detail.thumb}" class="img-fluid" alt="${animeDetail.anime_detail.title}">
-                        </div>
-                        <div class="col-md-8">
-                            <h3>Synopsis:</h3>
-                            <p>${animeDetail.anime_detail.sinopsis}</p>
-                            <h3>Details:</h3>
-                            <ul>
-                                ${animeDetail.anime_detail.detail.map(detail => `<li>${detail}</li>`).join('')}
-                            </ul>
-                            <h3>Genre:</h3>
-                            <ul>
-                                ${animeDetail.anime_detail.genres.map(genre => `<li>${genre}</li>`).join('')}
-                            </ul>
-                            <h3>Episode List:</h3>
-                            <ul>
-                                ${animeDetail.episode_list.map((episode, index) => `
-                                    <li>
-                                        <a href="/anime/${animeId}/${index + 1}">${episode.episode_title}</a>
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-            </body>
-            </html>
-        `);
-    } catch (error) {
-        console.error('Error rendering anime details page:', error.message);
         res.status(500).send('Internal Server Error');
     }
 });
