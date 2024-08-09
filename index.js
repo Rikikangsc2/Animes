@@ -109,6 +109,7 @@ app.get('/', async (req, res) => {
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
                 <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
                 <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
                 <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
@@ -149,6 +150,23 @@ app.get('/', async (req, res) => {
                     }
                     .btn-primary:hover {
                         background-color: #0056b3;
+                    }
+                    .pagination {
+                        flex-wrap: wrap;
+                    }
+                    .page-link {
+                        color: #fff;
+                        background-color: #343a40;
+                        border-color: #454d55;
+                    }
+                    .page-item.active .page-link {
+                        background-color: #007bff;
+                        border-color: #007bff;
+                    }
+                    .page-item.disabled .page-link {
+                        color: #6c757d;
+                        background-color: #343a40;
+                        border-color: #454d55;
                     }
                 </style>
             </head>
@@ -246,6 +264,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
                 <title>Nonton ${animeDetail.anime_detail.title} - Episode ${episodeNumber} | PURNIME TV</title>
                 <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PURNIME TV, situs streaming anime terbaik.">
                 <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
@@ -256,8 +275,8 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                     body { background-color: #121212; color: #fff; }
                     .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
                     .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-                    .anime-detail { display: flex; gap: 20px; }
-                    .anime-thumb img { max-width: 200px; border-radius: 8px; }
+                    .anime-detail { display: flex; flex-wrap: wrap; gap: 20px; }
+                    .anime-thumb img { max-width: 100%; border-radius: 8px; }
                     .anime-info { flex-grow: 1; }
                 </style>
             </head>
