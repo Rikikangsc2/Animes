@@ -189,6 +189,16 @@ app.get('/', async (req, res) => {
                                             <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                                             <p class="card-text">${anime.anime_detail.detail[10]}</p>
                                         </div>
+                                        <script type="text/javascript">
+	atOptions = {
+		'key' : '820d725ae89df09a522cbf33be858824',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.topcreativeformat.com/820d725ae89df09a522cbf33be858824/invoke.js"></script>
                                     </a>
                                 </div>
                             </div>
@@ -314,6 +324,16 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                             <noscript><button type="submit" class="btn btn-outline-light">Switch</button></noscript>
                         </form>
                     </div>
+                    <script type="text/javascript">
+	atOptions = {
+		'key' : '820d725ae89df09a522cbf33be858824',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.topcreativeformat.com/820d725ae89df09a522cbf33be858824/invoke.js"></script>
                     <div class="iframe-container">
                         <iframe src="${streamingUrl}" frameborder="0" allowfullscreen></iframe>
                     </div>
