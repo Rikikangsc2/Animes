@@ -228,8 +228,7 @@ app.get('/', async (req, res) => {
                                       <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                                       <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                                       <p class="card-text">${anime.anime_detail.detail[10]}</p>
-                                      <a href="/anime/${anime.endpoint}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
-                                      <a href="/save/${anime.endpoint}" class="btn btn-save"><i class="fas fa-save"></i> Simpan</a>
+                                      <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>
                                   </div>
                               </a>
                           </div>
@@ -243,6 +242,17 @@ app.get('/', async (req, res) => {
           </div>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+          <script>
+            function saveAnime(animeId) {
+              fetch('/save/' + animeId, { method: 'POST' })
+                .then(response => {
+                  if (response.ok) {
+                    alert('Udah di save bro');
+                  }
+                })
+                .catch(error => console.error('Error saving anime:', error));
+            }
+          </script>
       </body>
       </html>
     `);
@@ -252,105 +262,144 @@ app.get('/', async (req, res) => {
   }
 });
 
-app.post('/search', async (req, res) => {
-  try {
-    const searchQuery = req.body.search;
-    const searchResults = await searchAnime(searchQuery);
-    const animeData = await Promise.all(searchResults.map(anime => fetchAnimeDetail(anime.endpoint)));
+app.post('/save/:animeId', (req, res) => {
+  const animeId = req.params.animeId;
+  const bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
 
-    res.send(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hasil Pencarian: ${searchQuery} - PURNIME TV</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <style>
-          body { background-color: #121212; color: #e0e0e0; }
-          .anime-thumbnail { max-height: 230px; border-radius: 10px; }
-          .card {
-            border: 1px solid #333;
-            background-color: #1e1e1e;
-          }
-          .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
+  if (!bookmarks.includes(animeId)) {
+    bookmarks.push(animeId);
+    res.cookie('bookmarks', JSON.stringify(bookmarks), { maxAge: 365 * 24 * 60 * 60 * 1000 });
+  }
+
+  res.sendStatus(200);
+});
+
+app.get('/save', async (req, res) => {
+  const bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
+
+  const bookmarkedAnime = await Promise.all(bookmarks.map(async animeId => {
+    const animeDetail = await fetchAnimeDetail(animeId);
+    const lastEpisode = animeDetail.episode_list.length;
+    return { animeId, title: animeDetail.anime_detail.title, lastEpisode };
+  }));
+
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Saved Anime - PURNIME TV</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+      <style>
+        body { background-color: #121212; color: #e0e0e0; }
+        .anime-thumbnail { max-height: 230px; border-radius: 10px; }
+        .card {
+          border: 1px solid #333;
+          background-color: #1e1e1e;
+        }
+        .card-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #ffbf00;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .card-text {
+          font-size: 0.9rem;
+          color: #bbb;
+        }
+        .btn-watch {
+          background-color: #4caf50;
+          border: none;
+          border-radius: 5px;
+          padding: 8px 16px;
+          font-size: 0.9rem;
+          color: #fff;
+        }
+        .btn-watch:hover {
+          background-color: #43a047;
+        }
+        .btn-delete {
+          background-color: #e64a19;
+          border: none;
+          border-radius: 5px;
+          padding: 8px 16px;
+          font-size: 0.9rem;
+          color: #fff;
+        }
+        .btn-delete:hover {
+          background-color: #d32f2f;
+        }
+        .nav-link {
+            color: #ffffff;
+        }
+        .nav-link:hover {
             color: #ffbf00;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-          .card-text {
-            font-size: 0.9rem;
-            color: #bbb;
-          }
-          .btn-watch {
-            background-color: #4caf50;
-            border: none;
-            border-radius: 5px;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            color: #fff;
-          }
-          .btn-watch:hover {
-            background-color: #43a047;
-          }
-          .btn-save {
-            background-color: #ff5722;
-            border: none;
-            border-radius: 5px;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            color: #fff;
-          }
-          .btn-save:hover {
-            background-color: #e64a19;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container mt-5">
-          <h1 class="text-center mb-4">Hasil Pencarian: ${searchQuery}</h1>
-          <nav class="navbar navbar-dark bg-dark mb-4">
-            <div class="container-fluid">
-              <a class="navbar-brand" href="/">Home</a>
-              <div class="d-flex">
-                <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container mt-5">
+        <nav class="navbar navbar-dark bg-dark mb-4">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="/">Home</a>
+            <div class="d-flex">
+              <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
+            </div>
+          </div>
+        </nav>
+        ${insertAds()}
+        <h1 class="text-center mb-4">Saved Anime</h1>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          ${bookmarkedAnime.length === 0 ? `
+            <div class="col">
+              <div class="alert alert-warning text-center" role="alert">
+                No anime saved yet. Start saving your favorite anime!
               </div>
             </div>
-          </nav>
-          ${insertAds()}
-          <div class="row row-cols-1 row-cols-md-3 g-4">
-            ${animeData.map(anime => `
-              <div class="col">
-                <div class="card h-100 text-white">
-                  <a href="/anime/${anime.endpoint}" style="text-decoration: none;">
-                    <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
-                    <div class="card-body">
-                      <h5 class="card-title">${anime.anime_detail.title}</h5>
-                      <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
-                      <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
-                      <p class="card-text">${anime.anime_detail.detail[10]}</p>
-                      <a href="/anime/${anime.endpoint}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
-                      <a href="/save/${anime.endpoint}" class="btn btn-save"><i class="fas fa-save"></i> Simpan</a>
-                    </div>
-                  </a>
-                </div>
+          ` : bookmarkedAnime.map(anime => `
+            <div class="col">
+              <div class="card h-100 text-white">
+                <a href="/anime/${anime.animeId}/${anime.lastEpisode}" style="text-decoration: none;">
+                  <div class="card-body">
+                    <h5 class="card-title">${anime.title}</h5>
+                    <a href="/anime/${anime.animeId}/${anime.lastEpisode}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
+                    <button class="btn btn-delete" onclick="deleteAnime('${anime.animeId}')"><i class="fas fa-trash-alt"></i> Hapus</button>
+                  </div>
+                </a>
               </div>
-            `).join('')}
-          </div>
+            </div>
+          `).join('')}
         </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-      </body>
-      </html>
-    `);
-  } catch (error) {
-    console.error('Error in search:', error);
-    res.status(500).send('Internal Server Error');
-  }
+      </div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+      <script>
+        function deleteAnime(animeId) {
+          fetch('/delete/' + animeId, { method: 'POST' })
+            .then(response => {
+              if (response.ok) {
+                location.reload();
+              }
+            })
+            .catch(error => console.error('Error deleting anime:', error));
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+app.post('/delete/:animeId', (req, res) => {
+  const animeId = req.params.animeId;
+  let bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
+
+  bookmarks = bookmarks.filter(id => id !== animeId);
+  res.cookie('bookmarks', JSON.stringify(bookmarks), { maxAge: 365 * 24 * 60 * 60 * 1000 });
+  res.sendStatus(200);
 });
 
 app.get('/anime/:animeId/:episode?', async (req, res) => {
@@ -493,119 +542,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
     console.error('Error rendering stream page:', error.message);
     res.status(500).send('Internal Server Error');
   }
-});
-
-app.get('/save', (req, res) => {
-  const bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
-  
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Saved Anime - PURNIME TV</title>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-      <style>
-        body { background-color: #121212; color: #e0e0e0; }
-        .anime-thumbnail { max-height: 230px; border-radius: 10px; }
-        .card {
-          border: 1px solid #333;
-          background-color: #1e1e1e;
-        }
-        .card-title {
-          font-size: 1.2rem;
-          font-weight: 600;
-          color: #ffbf00;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .card-text {
-          font-size: 0.9rem;
-          color: #bbb;
-        }
-        .btn-watch {
-          background-color: #4caf50;
-          border: none;
-          border-radius: 5px;
-          padding: 8px 16px;
-          font-size: 0.9rem;
-          color: #fff;
-        }
-        .btn-watch:hover {
-          background-color: #43a047;
-        }
-        .btn-save {
-          background-color: #ff5722;
-          border: none;
-          border-radius: 5px;
-          padding: 8px 16px;
-          font-size: 0.9rem;
-          color: #fff;
-        }
-        .btn-save:hover {
-          background-color: #e64a19;
-        }
-        .nav-link {
-            color: #ffffff;
-        }
-        .nav-link:hover {
-            color: #ffbf00;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container mt-5">
-        <nav class="navbar navbar-dark bg-dark mb-4">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="/">Home</a>
-            <div class="d-flex">
-              <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
-            </div>
-          </div>
-        </nav>
-        ${insertAds()}
-        <h1 class="text-center mb-4">Saved Anime</h1>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-          ${bookmarks.length === 0 ? `
-            <div class="col">
-              <div class="alert alert-warning text-center" role="alert">
-                No anime saved yet. Start saving your favorite anime!
-              </div>
-            </div>
-          ` : bookmarks.map(animeId => `
-            <div class="col">
-              <div class="card h-100 text-white">
-                <a href="/anime/${animeId}" style="text-decoration: none;">
-                  <div class="card-body">
-                    <h5 class="card-title">${animeId}</h5>
-                    <a href="/anime/${animeId}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
-                  </div>
-                </a>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-    </body>
-    </html>
-  `);
-});
-
-app.get('/save/:animeId', (req, res) => {
-  const animeId = req.params.animeId;
-  const bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
-  
-  if (!bookmarks.includes(animeId)) {
-    bookmarks.push(animeId);
-    res.cookie('bookmarks', JSON.stringify(bookmarks), { maxAge: 365 * 24 * 60 * 60 * 1000 });
-  }
-
-  res.redirect(`/anime/${animeId}`);
 });
 
 const PORT = process.env.PORT || 3000;
