@@ -518,6 +518,8 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             <a href="/anime/${animeId}/${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}"><i class="fas fa-arrow-left"></i> Previous Episode</a>
             <a href="/anime/${animeId}/${nextEpisode}" class="btn btn-outline-light ${nextEpisode > episodeList.length ? 'disabled' : ''}">Next Episode <i class="fas fa-arrow-right"></i></a>
           </div>
+          <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
+<div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
           <div class="mt-4">
             <h2>List Episode</h2>
             <div class="list-group">
