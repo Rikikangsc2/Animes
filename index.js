@@ -10,7 +10,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('public'));
 
-// Fungsi untuk mengambil daftar anime berdasarkan halaman
 async function fetchAnimeData(page) {
   try {
     const response = await axios.get(`${basenya}/api/v1/ongoing/${page}`);
@@ -21,7 +20,6 @@ async function fetchAnimeData(page) {
   }
 }
 
-// Fungsi untuk mengambil hasil pencarian anime
 async function searchAnime(query) {
   try {
     const response = await axios.get(`${basenya}/api/v1/search/${encodeURIComponent(query)}`);
@@ -32,7 +30,6 @@ async function searchAnime(query) {
   }
 }
 
-// Fungsi untuk mengambil detail anime dan daftar episode
 async function fetchAnimeDetail(endpoint) {
   try {
     const response = await axios.get(`${basenya}/api/v1/detail/${endpoint}`);
@@ -49,7 +46,6 @@ async function fetchAnimeDetail(endpoint) {
   }
 }
 
-// Fungsi untuk mengambil tautan streaming untuk episode
 async function fetchEpisodeStream(endpoint) {
   try {
     const response = await axios.get(`${basenya}/api/v1/episode/${endpoint}`);
@@ -60,7 +56,6 @@ async function fetchEpisodeStream(endpoint) {
   }
 }
 
-// Fungsi untuk memangkas tampilan pagination
 function getPagination(currentPage, totalPages) {
   let nextPage = currentPage === totalPages ? 1 : currentPage + 1;
   let prevPage = currentPage === 1 ? totalPages : currentPage - 1;
@@ -68,18 +63,16 @@ function getPagination(currentPage, totalPages) {
   return { nextPage, prevPage };
 }
 
-// Middleware untuk mengatur header caching
 app.use((req, res, next) => {
   const now = new Date();
   const resetTime = new Date();
-  resetTime.setHours(24, 0, 0, 0); // Reset di jam 00:00
+  resetTime.setHours(24, 0, 0, 0);
   const maxAge = Math.floor((resetTime - now) / 1000);
   
   res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
   next();
 });
 
-// Fungsi untuk menyisipkan iklan di halaman HTML
 function insertAds() {
   return `
     <div class="text-center mb-4">
@@ -107,7 +100,6 @@ function insertAds() {
   `;
 }
 
-// Endpoint untuk menampilkan daftar anime dengan pagination
 app.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -134,7 +126,7 @@ app.get('/', async (req, res) => {
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
           <style>
               body { 
-                  background-color: #1c1c1c; 
+                  background-color: #1a1a1a; 
                   color: #f1f1f1; 
                   font-family: 'Arial', sans-serif;
               }
@@ -143,7 +135,7 @@ app.get('/', async (req, res) => {
                   border-radius: 10px; 
               }
               .card {
-                  border: 1px solid #444;
+                  border: 1px solid #333;
                   background-color: #2a2a2a;
               }
               .card-title {
@@ -156,17 +148,27 @@ app.get('/', async (req, res) => {
               }
               .card-text {
                   font-size: 0.9rem;
-                  color: #ccc;
+                  color: #bbb;
               }
-              .btn-primary {
-                  background-color: #28a745;
+              .btn-watch {
+                  background-color: #3498db;
                   border: none;
                   border-radius: 5px;
                   padding: 8px 16px;
                   font-size: 0.9rem;
               }
-              .btn-primary:hover {
-                  background-color: #218838;
+              .btn-watch:hover {
+                  background-color: #2980b9;
+              }
+              .btn-watch-later {
+                  background-color: #e67e22;
+                  border: none;
+                  border-radius: 5px;
+                  padding: 8px 16px;
+                  font-size: 0.9rem;
+              }
+              .btn-watch-later:hover {
+                  background-color: #d35400;
               }
               .pagination {
                   flex-wrap: wrap;
@@ -206,7 +208,8 @@ app.get('/', async (req, res) => {
                                       <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                                       <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                                       <p class="card-text">${anime.anime_detail.detail[10]}</p>
-                                      <a href="/bookmark/${anime.endpoint}" class="btn btn-primary">Bookmark</a>
+                                      <a href="/anime/${anime.endpoint}" class="btn btn-watch">Tonton</a>
+                                      <a href="/watch-later/${anime.endpoint}" class="btn btn-watch-later">Tonton Nanti</a>
                                   </div>
                               </a>
                           </div>
@@ -228,7 +231,6 @@ app.get('/', async (req, res) => {
   }
 });
 
-// Endpoint untuk halaman pencarian anime
 app.post('/search', async (req, res) => {
   try {
     const searchQuery = req.body.search;
@@ -244,10 +246,10 @@ app.post('/search', async (req, res) => {
         <title>Hasil Pencarian: ${searchQuery} - PURNIME TV</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
         <style>
-          body { background-color: #1c1c1c; color: #f1f1f1; }
+          body { background-color: #1a1a1a; color: #f1f1f1; }
           .anime-thumbnail { max-height: 230px; border-radius: 10px; }
           .card {
-            border: 1px solid #444;
+            border: 1px solid #333;
             background-color: #2a2a2a;
           }
           .card-title {
@@ -260,17 +262,27 @@ app.post('/search', async (req, res) => {
           }
           .card-text {
             font-size: 0.9rem;
-            color: #ccc;
+            color: #bbb;
           }
-          .btn-primary {
-            background-color: #28a745;
+          .btn-watch {
+            background-color: #3498db;
             border: none;
             border-radius: 5px;
             padding: 8px 16px;
             font-size: 0.9rem;
           }
-          .btn-primary:hover {
-            background-color: #218838;
+          .btn-watch:hover {
+            background-color: #2980b9;
+          }
+          .btn-watch-later {
+            background-color: #e67e22;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+          }
+          .btn-watch-later:hover {
+            background-color: #d35400;
           }
         </style>
       </head>
@@ -289,7 +301,8 @@ app.post('/search', async (req, res) => {
                       <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                       <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                       <p class="card-text">${anime.anime_detail.detail[10]}</p>
-                      <a href="/bookmark/${anime.endpoint}" class="btn btn-primary">Bookmark</a>
+                      <a href="/anime/${anime.endpoint}" class="btn btn-watch">Tonton</a>
+                      <a href="/watch-later/${anime.endpoint}" class="btn btn-watch-later">Tonton Nanti</a>
                     </div>
                   </a>
                 </div>
@@ -307,7 +320,6 @@ app.post('/search', async (req, res) => {
   }
 });
 
-// Endpoint untuk streaming episode anime
 app.get('/anime/:animeId/:episode?', async (req, res) => {
   try {
     const animeId = req.params.animeId;
@@ -323,7 +335,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
     const selectedEpisode = episodeList[episodeList.length - episodeNumber];
     const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
 
-    // Siapkan opsi streaming
     const serverOptions = [];
     const mirrors = ['mirror_embed1', 'mirror_embed2', 'mirror_embed3'];
 
@@ -339,8 +350,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
       }
     });
 
-    // Tentukan URL streaming yang dipilih
-    let streamingUrl = episodeData.streamLink; // Default streamLink
+    let streamingUrl = episodeData.streamLink;
     if (req.query.server) {
       const selectedServer = serverOptions.find(server => server.name === req.query.server);
       if (selectedServer) {
@@ -351,18 +361,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
 
     const nextEpisode = episodeNumber + 1;
     const prevEpisode = episodeNumber - 1;
-
-    // Dapatkan riwayat episode dari cookie
-    let lastWatchedEpisode = req.cookies[animeId] || 1;
-
-    // Perbarui riwayat episode jika episode saat ini lebih besar
-    if (episodeNumber > lastWatchedEpisode) {
-      lastWatchedEpisode = episodeNumber;
-      res.cookie(animeId, lastWatchedEpisode, { maxAge: 365 * 24 * 60 * 60 * 1000 }); // Simpan selama 1 tahun
-    } else {
-      // Otomatis redirect ke episode terakhir yang ditonton
-      return res.redirect(`/anime/${animeId}/${lastWatchedEpisode}`);
-    }
 
     res.send(`
       <!DOCTYPE html>
@@ -377,7 +375,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
         <style>
-          body { background-color: #1c1c1c; color: #f1f1f1; }
+          body { background-color: #1a1a1a; color: #f1f1f1; }
           .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
           .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
           .anime-detail { display: flex; flex-wrap: wrap; gap: 20px; }
@@ -448,8 +446,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
   }
 });
 
-// Tambahkan endpoint untuk bookmark
-app.get('/bookmark/:animeId', (req, res) => {
+app.get('/watch-later/:animeId', (req, res) => {
   const animeId = req.params.animeId;
   const bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
   
