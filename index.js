@@ -247,7 +247,7 @@ app.get('/', async (req, res) => {
               fetch('/save/' + animeId, { method: 'POST' })
                 .then(response => {
                   if (response.ok) {
-                    alert('Udah di save bro');
+                    alert('Udah di save bro klik ok untuk menonton');
                   }
                 })
                 .catch(error => console.error('Error saving anime:', error));
@@ -626,7 +626,7 @@ app.post('/search', async (req, res) => {
                       <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                       <p class="card-text">${anime.anime_detail.detail[10]}</p>
                       <a href="/anime/${anime.endpoint}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
-                      <a href="/save/${anime.endpoint}" class="btn btn-save"><i class="fas fa-save"></i> Simpan</a>
+                       <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>   
                     </div>
                   </a>
                 </div>
@@ -636,6 +636,17 @@ app.post('/search', async (req, res) => {
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+        <script>
+            function saveAnime(animeId) {
+              fetch('/save/' + animeId, { method: 'POST' })
+                .then(response => {
+                  if (response.ok) {
+                    alert('Udah di save bro klik ok untuk menonton');
+                  }
+                })
+                .catch(error => console.error('Error saving anime:', error));
+            }
+          </script>
       </body>
       </html>
     `);
