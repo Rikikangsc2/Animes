@@ -236,9 +236,7 @@ app.get('/', async (req, res) => {
           <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
           <script>
             function saveAnime(animeId) {
-              const userAgent = navigator.userAgent;
-              const encodedUserAgent = encodeURIComponent(userAgent);
-              fetch('/save/' + animeId + '?userAgent=' + encodedUserAgent, { method: 'POST' })
+              fetch('/save/' + animeId, { method: 'POST' })
                 .then(response => {
                   if (response.ok) {
                     alert('Udah di save bro silahkan cek di save');
@@ -258,177 +256,152 @@ app.get('/', async (req, res) => {
 
 app.post('/save/:animeId', (req, res) => {
   const animeId = req.params.animeId;
-  const userAgent = req.query.userAgent; // Dapatkan userAgent dari query parameter
+  const bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
 
-  // Simpan data menggunakan axios.post ke Nue DB
-  axios.post('https://nue-db.vercel.app/write/' + encodeURIComponent(userAgent), {
-    json: { [animeId]: true } // Menggunakan animeId sebagai key dan true sebagai value
-  })
-  .then(response => {
-    console.log(response.data); 
-    res.status(200).send(); // Kirim respon sukses
-  })
-  .catch(error => {
-    console.error('Error saving data to Nue DB:', error);
-    res.status(500).send('Internal Server Error'); // Kirim respon error jika gagal menyimpan
-  });
+  if (!bookmarks.includes(animeId)) {
+    bookmarks.push(animeId);
+    res.cookie('bookmarks', JSON.stringify(bookmarks), { maxAge: 365 * 24 * 60 * 60 * 1000 });
+  }
+
+  // Get the last episode watched by the user
+  res.status(200).send();
 });
 
-
 app.get('/save', async (req, res) => {
-  const userAgent = req.headers['user-agent'];
-  const encodedUserAgent = encodeURIComponent(userAgent);
+  const bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
 
-  // Ambil data dari Nue DB berdasarkan user agent
-  axios.get('https://nue-db.vercel.app/read/' + encodedUserAgent)
-    .then(async (response) => {
-      const bookmarks = Object.keys(response.data) || []; 
+  const bookmarkedAnime = await Promise.all(bookmarks.map(async animeId => {
+    const animeDetail = await fetchAnimeDetail(animeId);
+    let lastEpisode = "Astaga naga gabut"
+    const tq = req.cookies[`lastEpisode_${animeId}`];
+    if (tq) {
+    lastEpisode = tq
+    } else {
+    lastEpisode = 1
+    }
+    return { animeId, title: animeDetail.anime_detail.title, lastEpisode };
+  }));
 
-      const bookmarkedAnime = await Promise.all(bookmarks.map(async animeId => {
-        const animeDetail = await fetchAnimeDetail(animeId);
-        let lastEpisode = "Astaga naga gabut"
-        const tq = req.cookies[`lastEpisode_${animeId}`];
-        if (tq) {
-          lastEpisode = tq
-        } else {
-          lastEpisode = 1
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Saved Anime - PURNIME TV</title>
+      <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+      <style>
+        body { background-color: #121212; color: #e0e0e0; }
+        .anime-thumbnail { max-height: 230px; border-radius: 10px; }
+        .card {
+          border: 1px solid #333;
+          background-color: #1e1e1e;
         }
-        return { animeId, title: animeDetail.anime_detail.title, lastEpisode };
-      }));
-
-      res.send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <title>Saved Anime - PURNIME TV</title>
-          <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-          <style>
-            body { background-color: #121212; color: #e0e0e0; }
-            .anime-thumbnail { max-height: 230px; border-radius: 10px; }
-            .card {
-              border: 1px solid #333;
-              background-color: #1e1e1e;
-            }
-            .card-title {
-              font-size: 1.2rem;
-              font-weight: 600;
-              color: #ffbf00;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            }
-            .card-text {
-              font-size: 0.9rem;
-              color: #bbb;
-            }
-            .btn-watch {
-              background-color: #4caf50;
-              border: none;
-              border-radius: 5px;
-              padding: 8px 16px;
-              font-size: 0.9rem;
-              color: #fff;
-            }
-            .btn-watch:hover {
-              background-color: #43a047;
-            }
-            .btn-delete {
-              background-color: #e64a19;
-              border: none;
-              border-radius: 5px;
-              padding: 8px 16px;
-              font-size: 0.9rem;
-              color: #fff;
-            }
-            .btn-delete:hover {
-              background-color: #d32f2f;
-            }
-            .nav-link {
-                color: #ffffff;
-            }
-            .nav-link:hover {
-                color: #ffbf00;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container mt-5">
-            <nav class="navbar navbar-dark bg-dark mb-4">
-              <div class="container-fluid">
-                <a class="navbar-brand" href="/">Home</a>
-                <div class="d-flex">
-                  <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
-                </div>
-              </div>
-            </nav>
-            ${insertAds()}
-            <h1 class="text-center mb-4">Saved Anime</h1>
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-              ${bookmarkedAnime.length === 0 ? `
-                <div class="col">
-                  <div class="alert alert-warning text-center" role="alert">
-                    No anime saved yet. Start saving your favorite anime!
-                  </div>
-                </div>
-              ` : bookmarkedAnime.map(anime => `
-                <div class="col">
-                  <div class="card h-100 text-white">
-                    <a href="/anime/${anime.animeId}/${anime.lastEpisode}" style="text-decoration: none;">
-                      <div class="card-body">
-                        <h5 class="card-title">${anime.title}</h5>
-                        <a href="/anime/${anime.animeId}/${anime.lastEpisode}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
-                        <button class="btn btn-delete" onclick="deleteAnime('${anime.animeId}')"><i class="fas fa-trash-alt"></i> Hapus</button>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              `).join('')}
+        .card-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #ffbf00;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .card-text {
+          font-size: 0.9rem;
+          color: #bbb;
+        }
+        .btn-watch {
+          background-color: #4caf50;
+          border: none;
+          border-radius: 5px;
+          padding: 8px 16px;
+          font-size: 0.9rem;
+          color: #fff;
+        }
+        .btn-watch:hover {
+          background-color: #43a047;
+        }
+        .btn-delete {
+          background-color: #e64a19;
+          border: none;
+          border-radius: 5px;
+          padding: 8px 16px;
+          font-size: 0.9rem;
+          color: #fff;
+        }
+        .btn-delete:hover {
+          background-color: #d32f2f;
+        }
+        .nav-link {
+            color: #ffffff;
+        }
+        .nav-link:hover {
+            color: #ffbf00;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container mt-5">
+        <nav class="navbar navbar-dark bg-dark mb-4">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="/">Home</a>
+            <div class="d-flex">
+              <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
             </div>
           </div>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-          <script>
-            function deleteAnime(animeId) {
-              const userAgent = navigator.userAgent;
-              const encodedUserAgent = encodeURIComponent(userAgent);
-              fetch('/delete/' + animeId + '?userAgent=' + encodedUserAgent, { method: 'POST' })
-                .then(response => {
-                  if (response.ok) {
-                    location.reload();
-                  }
-                })
-                .catch(error => console.error('Error deleting anime:', error));
-            }
-          </script>
-        </body>
-        </html>
-      `);
-    })
-    .catch(error => {
-      console.error('Error reading data from Nue DB:', error);
-      res.status(500).send('Internal Server Error'); 
-    });
+        </nav>
+        ${insertAds()}
+        <h1 class="text-center mb-4">Saved Anime</h1>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          ${bookmarkedAnime.length === 0 ? `
+            <div class="col">
+              <div class="alert alert-warning text-center" role="alert">
+                No anime saved yet. Start saving your favorite anime!
+                <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
+<div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
+              </div>
+            </div>
+          ` : bookmarkedAnime.map(anime => `
+            <div class="col">
+              <div class="card h-100 text-white">
+                <a href="/anime/${anime.animeId}/${anime.lastEpisode}" style="text-decoration: none;">
+                  <div class="card-body">
+                    <h5 class="card-title">${anime.title}</h5>
+                    <a href="/anime/${anime.animeId}/${anime.lastEpisode}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
+                    <button class="btn btn-delete" onclick="deleteAnime('${anime.animeId}')"><i class="fas fa-trash-alt"></i> Hapus</button>
+                  </div>
+                </a>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+      <script>
+        function deleteAnime(animeId) {
+          fetch('/delete/' + animeId, { method: 'POST' })
+            .then(response => {
+              if (response.ok) {
+                location.reload();
+              }
+            })
+            .catch(error => console.error('Error deleting anime:', error));
+        }
+      </script>
+    </body>
+    </html>
+  `);
 });
 
 app.post('/delete/:animeId', (req, res) => {
   const animeId = req.params.animeId;
-  const userAgent = req.query.userAgent;
-  const encodedUserAgent = encodeURIComponent(userAgent);
+  let bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
 
-  // Hapus data animeId dari Nue DB
-  axios.get(`https://nue-db.vercel.app/delete/${encodedUserAgent}/${animeId}`)
-  .then(response => {
-    console.log(response.data);
-    res.status(200).send();
-  })
-  .catch(error => {
-    console.error('Error deleting data from Nue DB:', error);
-    res.status(500).send('Internal Server Error');
-  });
+  bookmarks = bookmarks.filter(id => id !== animeId);
+  res.cookie('bookmarks', JSON.stringify(bookmarks), { maxAge: 365 * 24 * 60 * 60 * 1000 });
+  res.sendStatus(200);
 });
 
 app.get('/anime/:animeId/:episode?', async (req, res) => {
@@ -669,12 +642,10 @@ app.post('/search', async (req, res) => {
           </div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-       awesome/6.0.0/js/all.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
         <script>
             function saveAnime(animeId) {
-              const userAgent = navigator.userAgent;
-              const encodedUserAgent = encodeURIComponent(userAgent);
-              fetch('/save/' + animeId + '?userAgent=' + encodedUserAgent, { method: 'POST' })
+              fetch('/save/' + animeId, { method: 'POST' })
                 .then(response => {
                   if (response.ok) {
                     alert('Udah di save bro silahkan cek di save');
