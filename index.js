@@ -1,13 +1,13 @@
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser'); // Tambahkan cookie-parser
+const cookieParser = require('cookie-parser');
 
 const basenya = "https://api-otakudesu-livid.vercel.app";
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser()); // Gunakan cookie-parser
+app.use(cookieParser());
 app.use(express.static('public'));
 
 // Fungsi untuk mengambil daftar anime berdasarkan halaman
@@ -38,7 +38,6 @@ async function fetchAnimeDetail(endpoint) {
     const response = await axios.get(`${basenya}/api/v1/detail/${endpoint}`);
     const animeDetail = response.data || {};
 
-    // Filter episode yang memiliki awalan 'episode-' yang valid
     animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode =>
       episode.episode_endpoint.includes("episode-")
     );
@@ -63,28 +62,50 @@ async function fetchEpisodeStream(endpoint) {
 
 // Fungsi untuk memangkas tampilan pagination
 function getPagination(currentPage, totalPages) {
-  const maxPagesToShow = 6; // Menampilkan maksimal 6 tombol halaman
-  let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+  let nextPage = currentPage === totalPages ? 1 : currentPage + 1;
+  let prevPage = currentPage === 1 ? totalPages : currentPage - 1;
 
-  // Penyesuaian jika halaman awal atau akhir terlalu dekat dengan batas
-  if (endPage - startPage + 1 < maxPagesToShow) {
-    startPage = Math.max(1, endPage - maxPagesToShow + 1);
-  }
-
-  const pages = [];
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i);
-  }
-
-  return pages;
+  return { nextPage, prevPage };
 }
 
 // Middleware untuk mengatur header caching
 app.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache selama 24 jam (86400 detik)
+  const now = new Date();
+  const resetTime = new Date();
+  resetTime.setHours(24, 0, 0, 0); // Reset di jam 00:00
+  const maxAge = Math.floor((resetTime - now) / 1000);
+  
+  res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
   next();
 });
+
+// Fungsi untuk menyisipkan iklan di halaman HTML
+function insertAds() {
+  return `
+    <div class="text-center mb-4">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '820d725ae89df09a522cbf33be858824',
+          'format' : 'iframe',
+          'height' : 60,
+          'width' : 468,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.topcreativeformat.com/820d725ae89df09a522cbf33be858824/invoke.js"></script>
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'dd8ebba365a2d1ae7ca5e92744e27e1f',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.topcreativeformat.com/dd8ebba365a2d1ae7ca5e92744e27e1f/invoke.js"></script>
+    </div>
+  `;
+}
 
 // Endpoint untuk menampilkan daftar anime dengan pagination
 app.get('/', async (req, res) => {
@@ -92,15 +113,12 @@ app.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const pageSize = 100;
 
-    const [ongoingAnime] = await Promise.all([
-      fetchAnimeData(page),
-      // ...other asynchronous tasks can be added here
-    ]);
-
+    const ongoingAnime = await fetchAnimeData(page);
     const animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
     const paginatedAnime = animeData.slice((page - 1) * pageSize, page * pageSize);
+
     const totalPages = Math.ceil(animeData.length / pageSize);
-    const pagination = getPagination(page, totalPages);
+    const { nextPage, prevPage } = getPagination(page, totalPages);
 
     res.send(`
       <!DOCTYPE html>
@@ -116,8 +134,8 @@ app.get('/', async (req, res) => {
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
           <style>
               body { 
-                  background-color: #121212; 
-                  color: #fff; 
+                  background-color: #1c1c1c; 
+                  color: #f1f1f1; 
                   font-family: 'Arial', sans-serif;
               }
               .anime-thumbnail { 
@@ -125,29 +143,30 @@ app.get('/', async (req, res) => {
                   border-radius: 10px; 
               }
               .card {
-                  border: none;
-                  background: transparent;
+                  border: 1px solid #444;
+                  background-color: #2a2a2a;
               }
               .card-title {
                   font-size: 1.2rem;
                   font-weight: 600;
+                  color: #ffd700;
                   white-space: nowrap;
                   overflow: hidden;
                   text-overflow: ellipsis;
               }
               .card-text {
                   font-size: 0.9rem;
-                  color: #a0a0a0;
+                  color: #ccc;
               }
               .btn-primary {
-                  background-color: #007bff;
+                  background-color: #28a745;
                   border: none;
                   border-radius: 5px;
                   padding: 8px 16px;
                   font-size: 0.9rem;
               }
               .btn-primary:hover {
-                  background-color: #0056b3;
+                  background-color: #218838;
               }
               .pagination {
                   flex-wrap: wrap;
@@ -171,6 +190,7 @@ app.get('/', async (req, res) => {
       <body>
           <div class="container mt-5">
               <h1 class="text-center mb-4">PUR-NIME TV</h1>
+              ${insertAds()}
               <form action="/search" method="POST" class="d-flex justify-content-center mb-4"> 
                   <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search">
                   <button class="btn btn-outline-light" type="submit">Search</button>
@@ -186,21 +206,17 @@ app.get('/', async (req, res) => {
                                       <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                                       <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                                       <p class="card-text">${anime.anime_detail.detail[10]}</p>
+                                      <a href="/bookmark/${anime.endpoint}" class="btn btn-primary">Bookmark</a>
                                   </div>
                               </a>
                           </div>
                       </div>
                   `).join('')}
               </div>
-              <nav aria-label="Page navigation" class="mt-4">
-                  <ul class="pagination justify-content-center">
-                      ${pagination.map(p => `
-                          <li class="page-item ${p === page ? 'active' : ''}">
-                              <a class="page-link bg-dark text-light" href="/?page=${p}">${p}</a>
-                          </li>
-                      `).join('')}
-                  </ul>
-              </nav>
+              <div class="d-flex justify-content-between mt-4">
+                  <a href="/?page=${prevPage}" class="btn btn-outline-light">Back Page</a>
+                  <a href="/?page=${nextPage}" class="btn btn-outline-light">Next Page</a>
+              </div>
           </div>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
       </body>
@@ -215,7 +231,7 @@ app.get('/', async (req, res) => {
 // Endpoint untuk halaman pencarian anime
 app.post('/search', async (req, res) => {
   try {
-    const searchQuery = req.body.search; 
+    const searchQuery = req.body.search;
     const searchResults = await searchAnime(searchQuery);
     const animeData = await Promise.all(searchResults.map(anime => fetchAnimeDetail(anime.endpoint)));
 
@@ -228,12 +244,40 @@ app.post('/search', async (req, res) => {
         <title>Hasil Pencarian: ${searchQuery} - PURNIME TV</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
         <style>
-          /* Gaya CSS yang sama dengan halaman utama */
+          body { background-color: #1c1c1c; color: #f1f1f1; }
+          .anime-thumbnail { max-height: 230px; border-radius: 10px; }
+          .card {
+            border: 1px solid #444;
+            background-color: #2a2a2a;
+          }
+          .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffd700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .card-text {
+            font-size: 0.9rem;
+            color: #ccc;
+          }
+          .btn-primary {
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+          }
+          .btn-primary:hover {
+            background-color: #218838;
+          }
         </style>
       </head>
       <body>
         <div class="container mt-5">
           <h1 class="text-center mb-4">Hasil Pencarian: ${searchQuery}</h1>
+          ${insertAds()}
           <div class="row row-cols-1 row-cols-md-3 g-4">
             ${animeData.map(anime => `
               <div class="col">
@@ -245,6 +289,7 @@ app.post('/search', async (req, res) => {
                       <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                       <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                       <p class="card-text">${anime.anime_detail.detail[10]}</p>
+                      <a href="/bookmark/${anime.endpoint}" class="btn btn-primary">Bookmark</a>
                     </div>
                   </a>
                 </div>
@@ -314,6 +359,9 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
     if (episodeNumber > lastWatchedEpisode) {
       lastWatchedEpisode = episodeNumber;
       res.cookie(animeId, lastWatchedEpisode, { maxAge: 365 * 24 * 60 * 60 * 1000 }); // Simpan selama 1 tahun
+    } else {
+      // Otomatis redirect ke episode terakhir yang ditonton
+      return res.redirect(`/anime/${animeId}/${lastWatchedEpisode}`);
     }
 
     res.send(`
@@ -329,7 +377,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
         <style>
-          body { background-color: #121212; color: #fff; }
+          body { background-color: #1c1c1c; color: #f1f1f1; }
           .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
           .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
           .anime-detail { display: flex; flex-wrap: wrap; gap: 20px; }
@@ -339,6 +387,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
       </head>
       <body>
         <div class="container mt-5">
+          ${insertAds()}
           <div class="anime-detail mb-4">
             <div class="anime-thumb">
               <img src="${animeDetail.anime_detail.thumb}" alt="${animeDetail.anime_detail.title}">
@@ -388,11 +437,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
               `).join('')}
             </div>
           </div>
-
-          <div class="mt-4">
-            <a href="/anime/${animeId}/${lastWatchedEpisode}" class="btn btn-outline-light">Lanjutkan Menonton</a>
-          </div>
-
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
       </body>
@@ -402,6 +446,19 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
     console.error('Error rendering stream page:', error.message);
     res.status(500).send('Internal Server Error');
   }
+});
+
+// Tambahkan endpoint untuk bookmark
+app.get('/bookmark/:animeId', (req, res) => {
+  const animeId = req.params.animeId;
+  const bookmarks = req.cookies.bookmarks ? JSON.parse(req.cookies.bookmarks) : [];
+  
+  if (!bookmarks.includes(animeId)) {
+    bookmarks.push(animeId);
+    res.cookie('bookmarks', JSON.stringify(bookmarks), { maxAge: 365 * 24 * 60 * 60 * 1000 });
+  }
+
+  res.redirect(`/anime/${animeId}`);
 });
 
 const PORT = process.env.PORT || 3000;
