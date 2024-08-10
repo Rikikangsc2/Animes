@@ -218,23 +218,25 @@ app.get('/', async (req, res) => {
                   <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
               </form>
               <div class="row row-cols-1 row-cols-md-3 g-4">
-                  ${paginatedAnime.map(anime => `
-                      <div class="col">
-                          <div class="card h-100 text-white">
-                              <a href="/anime/${anime.endpoint}" style="text-decoration: none;"> 
-                                  <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
-                                  <div class="card-body">
-                                      <h5 class="card-title">${anime.anime_detail.title}</h5>
-                                      <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
-                                      <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
-                                      <p class="card-text">${anime.anime_detail.detail[10]}</p>
-                                 </div>
-                                 <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>
-                              </a>
-                          </div>
-                      </div>
-                  `).join('')}
-              </div>
+    ${paginatedAnime.map(anime => `
+        <div class="col">
+            <div class="card h-100 text-white">
+                <a href="/anime/${anime.endpoint}" style="text-decoration: none;"> 
+                    <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
+                    <div class="card-body">
+                        <h5 class="card-title">${anime.anime_detail.title}</h5>
+                        <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
+                        <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
+                        <p class="card-text">${anime.anime_detail.detail[10]}</p>
+                    </div>
+                </a>
+                <button class="btn btn-save" onclick="event.preventDefault(); saveAnime('${anime.endpoint}')">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+            </div>
+        </div>
+    `).join('')}
+</div>
               <div class="d-flex justify-content-between mt-4">
                   <a href="/?page=${prevPage}" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Back Page</a>
                   <a href="/?page=${nextPage}" class="btn btn-outline-light">Next Page <i class="fas fa-arrow-right"></i></a>
@@ -626,8 +628,10 @@ app.post('/search', async (req, res) => {
                       <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                       <p class="card-text">${anime.anime_detail.detail[10]}</p>
                       <a href="/anime/${anime.endpoint}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
-                       <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>   
-                    </div>
+                      <button class="btn btn-save" onclick="event.preventDefault(); saveAnime('${anime.endpoint}')">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+                </div>
                   </a>
                 </div>
               </div>
