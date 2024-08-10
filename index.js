@@ -544,6 +544,119 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
   }
 });
 
+app.post('/search', async (req, res) => {
+  try {
+    const searchQuery = req.body.search;
+    const searchResults = await searchAnime(searchQuery);
+    const animeData = await Promise.all(searchResults.map(async anime => {
+      const animeDetail = await fetchAnimeDetail(anime.endpoint);
+      const lastEpisode = animeDetail.episode_list.length;
+      return { ...anime, title: animeDetail.anime_detail.title, thumb: animeDetail.anime_detail.thumb, lastEpisode };
+    }));
+
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hasil Pencarian: ${searchQuery} - PURNIME TV</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+          body { background-color: #121212; color: #e0e0e0; }
+          .anime-thumbnail { max-height: 230px; border-radius: 10px; }
+          .card {
+            border: 1px solid #333;
+            background-color: #1e1e1e;
+          }
+          .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffbf00;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .card-text {
+            font-size: 0.9rem;
+            color: #bbb;
+          }
+          .btn-watch {
+            background-color: #4caf50;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            color: #fff;
+          }
+          .btn-watch:hover {
+            background-color: #43a047;
+          }
+          .btn-save {
+            background-color: #ff5722;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            color: #fff;
+          }
+          .btn-save:hover {
+            background-color: #e64a19;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container mt-5">
+          <h1 class="text-center mb-4">Hasil Pencarian: ${searchQuery}</h1>
+          <nav class="navbar navbar-dark bg-dark mb-4">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="/">Home</a>
+              <div class="d-flex">
+                <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
+              </div>
+            </div>
+          </nav>
+          ${insertAds()}
+          <div class="row row-cols-1 row-cols-md-3 g-4">
+            ${animeData.map(anime => `
+              <div class="col">
+                <div class="card h-100 text-white">
+                  <a href="/anime/${anime.endpoint}/${anime.lastEpisode}" style="text-decoration: none;">
+                    <img src="${anime.thumb}" class="card-img-top anime-thumbnail" alt="${anime.title}">
+                    <div class="card-body">
+                      <h5 class="card-title">${anime.title}</h5>
+                      <p class="card-text">${anime.detail[2]} - ${anime.detail[6]}</p>
+                      <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+        <script>
+          function saveAnime(animeId) {
+            fetch('/save/' + animeId, { method: 'POST' })
+              .then(response => {
+                if (response.ok) {
+                  alert('Udah di save bro');
+                }
+              })
+              .catch(error => console.error('Error saving anime:', error));
+          }
+        </script>
+      </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error('Error in search:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
