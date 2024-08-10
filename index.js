@@ -1,4 +1,3 @@
-
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
@@ -297,7 +296,6 @@ app.get('/save', async (req, res) => {
         return { animeId, title: animeDetail.anime_detail.title, lastEpisode };
       }));
 
-      // ... (lanjutkan dengan kode HTML untuk menampilkan daftar anime yang disimpan)
       res.send(`
         <!DOCTYPE html>
         <html lang="en">
@@ -374,8 +372,6 @@ app.get('/save', async (req, res) => {
                 <div class="col">
                   <div class="alert alert-warning text-center" role="alert">
                     No anime saved yet. Start saving your favorite anime!
-                    <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
-        <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
                   </div>
                 </div>
               ` : bookmarkedAnime.map(anime => `
@@ -434,6 +430,7 @@ app.post('/delete/:animeId', (req, res) => {
     res.status(500).send('Internal Server Error');
   });
 });
+
 app.get('/anime/:animeId/:episode?', async (req, res) => {
   try {
     const animeId = req.params.animeId;
