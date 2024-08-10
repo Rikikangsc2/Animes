@@ -274,12 +274,7 @@ app.post('/save/:animeId', (req, res) => {
   }
 
   // Get the last episode watched by the user
-  const lastEpisode = req.cookies[`lastEpisode_${animeId}`];
-  if (lastEpisode) {
-    res.redirect(`/anime/${animeId}/${lastEpisode}`);
-  } else {
-    res.redirect('/save');
-  }
+  res.status(200).send();
 });
 
 app.get('/save', async (req, res) => {
@@ -287,7 +282,13 @@ app.get('/save', async (req, res) => {
 
   const bookmarkedAnime = await Promise.all(bookmarks.map(async animeId => {
     const animeDetail = await fetchAnimeDetail(animeId);
-    const lastEpisode = 1;
+    let lastEpisode = "Astaga naga gabut"
+    const tq = req.cookies[`lastEpisode_${animeId}`];
+    if (tq) {
+    lastEpisode = tq
+    } else {
+    lastEpisode = 1
+    }
     return { animeId, title: animeDetail.anime_detail.title, lastEpisode };
   }));
 
