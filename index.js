@@ -63,19 +63,6 @@ function getPagination(currentPage, totalPages) {
   return { nextPage, prevPage };
 }
 
-app.use((req, res, next) => {
-  const now = new Date();
-  const resetTime = new Date();
-  resetTime.setHours(24, 0, 0, 0);
-  const maxAge = Math.floor((resetTime - now) / 1000);
-  
-  if (req.path === '/' || req.path.startsWith('/anime')) {
-    res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
-  }
-  
-  next();
-});
-
 function insertAds() {
   return `
     <div class="text-center mb-4">
