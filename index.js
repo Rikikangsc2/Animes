@@ -451,7 +451,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
 
     const nextEpisode = episodeNumber + 1;
     const prevEpisode = episodeNumber - 1;
-
+    res.cookie(`lastEpisode_${animeId}`, episodeNumber, { maxAge: 365 * 24 * 60 * 60 * 1000 });
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
