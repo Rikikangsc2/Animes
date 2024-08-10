@@ -287,7 +287,7 @@ app.get('/save', async (req, res) => {
 
   const bookmarkedAnime = await Promise.all(bookmarks.map(async animeId => {
     const animeDetail = await fetchAnimeDetail(animeId);
-    const lastEpisode = req.cookies[`lastEpisode_${animeId}`];
+    const lastEpisode = 1;
     return { animeId, title: animeDetail.anime_detail.title, lastEpisode };
   }));
 
