@@ -112,7 +112,7 @@ app.get('/', async (req, res) => {
           <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
           <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
           <meta name="google-adsense-account" content="ca-pub-5220496608138780">
-          <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
+          <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
           <style>
@@ -289,6 +289,7 @@ app.get('/save', async (req, res) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Saved Anime - PURNIME TV</title>
+      <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
       <style>
@@ -455,7 +456,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
         <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PURNIME TV, situs streaming anime terbaik.">
         <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
         <meta name="google-adsense-account" content="ca-pub-5220496608138780">
-        <link rel="icon" href="https://th.bing.com/th/id/OIG1.zckrRMeI76ehRbucAgma?dpr=2&pid=ImgDetMain" type="image/x-icon">
+        <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
@@ -560,6 +561,7 @@ app.post('/search', async (req, res) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Hasil Pencarian: ${searchQuery} - PURNIME TV</title>
+        <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
