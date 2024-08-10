@@ -271,7 +271,7 @@ app.post('/save/:animeId', (req, res) => {
     res.cookie('bookmarks', JSON.stringify(bookmarks), { maxAge: 365 * 24 * 60 * 60 * 1000 });
   }
 
-  res.sendStatus(200);
+  res.redirect('/save');
 });
 
 app.get('/save', async (req, res) => {
@@ -618,12 +618,15 @@ app.post('/search', async (req, res) => {
             ${animeData.map(anime => `
               <div class="col">
                 <div class="card h-100 text-white">
-                  <a href="/anime/${anime.endpoint}/${anime.episode_list.length}" style="text-decoration: none;">
+                  <a href="/anime/${anime.endpoint}" style="text-decoration: none;">
                     <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
                     <div class="card-body">
                       <h5 class="card-title">${anime.anime_detail.title}</h5>
                       <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
-                      <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>
+                      <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
+                      <p class="card-text">${anime.anime_detail.detail[10]}</p>
+                      <a href="/anime/${anime.endpoint}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
+                      <a href="/save/${anime.endpoint}" class="btn btn-save"><i class="fas fa-save"></i> Simpan</a>
                     </div>
                   </a>
                 </div>
@@ -633,17 +636,6 @@ app.post('/search', async (req, res) => {
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-        <script>
-          function saveAnime(animeId) {
-            fetch('/save/' + animeId, { method: 'POST' })
-              .then(response => {
-                if (response.ok) {
-                  alert('Udah di save bro');
-                }
-              })
-              .catch(error => console.error('Error saving anime:', error));
-          }
-        </script>
       </body>
       </html>
     `);
