@@ -548,11 +548,7 @@ app.post('/search', async (req, res) => {
   try {
     const searchQuery = req.body.search;
     const searchResults = await searchAnime(searchQuery);
-    const animeData = await Promise.all(searchResults.map(async anime => {
-      const animeDetail = await fetchAnimeDetail(anime.endpoint);
-      const lastEpisode = animeDetail.episode_list.length;
-      return { ...anime, title: animeDetail.anime_detail.title, thumb: animeDetail.anime_detail.thumb, lastEpisode };
-    }));
+    const animeData = await Promise.all(searchResults.map(anime => fetchAnimeDetail(anime.endpoint)));
 
     res.send(`
       <!DOCTYPE html>
@@ -622,11 +618,11 @@ app.post('/search', async (req, res) => {
             ${animeData.map(anime => `
               <div class="col">
                 <div class="card h-100 text-white">
-                  <a href="/anime/${anime.endpoint}/${anime.lastEpisode}" style="text-decoration: none;">
-                    <img src="${anime.thumb}" class="card-img-top anime-thumbnail" alt="${anime.title}">
+                  <a href="/anime/${anime.endpoint}/${anime.episode_list.length}" style="text-decoration: none;">
+                    <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
                     <div class="card-body">
-                      <h5 class="card-title">${anime.title}</h5>
-                      <p class="card-text">${anime.detail[2]} - ${anime.detail[6]}</p>
+                      <h5 class="card-title">${anime.anime_detail.title}</h5>
+                      <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                       <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>
                     </div>
                   </a>
