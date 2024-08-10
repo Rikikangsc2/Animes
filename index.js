@@ -228,8 +228,8 @@ app.get('/', async (req, res) => {
                                       <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
                                       <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
                                       <p class="card-text">${anime.anime_detail.detail[10]}</p>
-                                      <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>
-                                  </div>
+                                 </div>
+                                 <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>
                               </a>
                           </div>
                       </div>
@@ -247,7 +247,7 @@ app.get('/', async (req, res) => {
               fetch('/save/' + animeId, { method: 'POST' })
                 .then(response => {
                   if (response.ok) {
-                    alert('Udah di save bro klik ok untuk menonton');
+                    alert('Udah di save bro silahkan cek di save');
                   }
                 })
                 .catch(error => console.error('Error saving anime:', error));
@@ -641,7 +641,7 @@ app.post('/search', async (req, res) => {
               fetch('/save/' + animeId, { method: 'POST' })
                 .then(response => {
                   if (response.ok) {
-                    alert('Udah di save bro klik ok untuk menonton');
+                    alert('Udah di save bro silahkan cek di save');
                   }
                 })
                 .catch(error => console.error('Error saving anime:', error));
