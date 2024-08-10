@@ -103,7 +103,7 @@ function insertAds() {
 app.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 100;
+    const pageSize = 10;
 
     const ongoingAnime = await fetchAnimeData(page);
     const animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
