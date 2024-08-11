@@ -574,7 +574,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             currentEpisodeNumber = episodeNumber;
             document.getElementById('current-episode').value = episodeNumber;
             const animeDetail = await fetchAnimeDetail(animeId);
-            const episodeList = animeDetail.episode_list || [];
+            const episodeList = animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-")) || [];
 
             if (episodeNumber < 1 || episodeNumber > episodeList.length) {
               alert('Episode not found');
