@@ -229,8 +229,8 @@ app.get('/', async (req, res) => {
               try {
                 const response = await fetch(\`\${basenya}/api/v1/detail/\${endpoint}\`);
                 const animeDetail = await response.json();
-                const rikianjay = animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-"));
-                return rikianjay || {};
+                animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-"));
+                return animeDetail || {};
               } catch (error) {
                 console.error('Error fetching anime detail:', error.message);
                 return {};
@@ -517,10 +517,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           async function fetchAnimeDetail(endpoint) {
             try {
               const response = await fetch(\`\${basenya}/api/v1/detail/\${endpoint}\`);
-              
-              const animeDetail = response.json();
-              animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-"));
-              return animeDetail;
+              return await response.json();
             } catch (error) {
               console.error('Error fetching anime detail:', error.message);
               return {};
