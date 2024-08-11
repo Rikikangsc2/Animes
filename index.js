@@ -11,11 +11,16 @@ app.use(cookieParser());
 app.use(express.static('public'));
 app.use((req, res, next) => {
     const cacheTime = 7 * 60 * 60; // 7 jam dalam detik
+    const url = req.url;
 
-    if (req.headers['cache-control'] && req.headers['cache-control'].includes('no-cache')) {
+    if (url.startsWith('/delete') || url.startsWith('/save')) {
         res.setHeader('Cache-Control', 'no-store');
     } else {
-        res.setHeader('Cache-Control', `public, max-age=${cacheTime}, immutable`);
+        if (req.headers['cache-control'] && req.headers['cache-control'].includes('no-cache')) {
+            res.setHeader('Cache-Control', 'no-store');
+        } else {
+            res.setHeader('Cache-Control', `public, max-age=${cacheTime}, immutable`);
+        }
     }
 
     next();
