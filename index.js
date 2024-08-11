@@ -46,12 +46,6 @@ async function fetchEpisodeStream(endpoint) {
   }
 }
 
-function getPagination(currentPage, totalPages) {
-  let nextPage = currentPage === totalPages ? 1 : currentPage + 1;
-  let prevPage = currentPage === 1 ? totalPages : currentPage - 1;
-
-  return { nextPage, prevPage };
-}
 
 function insertAds() {
   return `
@@ -228,7 +222,7 @@ app.get('/', async (req, res) => {
           <script>
             const basenya = "${basenya}";
             let currentPage = 1;
-            const pageSize = 9;
+            const pageSize = 100;
 
             async function fetchAnimeData(page) {
               try {
