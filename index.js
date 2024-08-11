@@ -315,7 +315,7 @@ app.get('/save', async (req, res) => {
   const bookmarkedAnime = await Promise.all(bookmarks.map(async animeId => {
     const animeDetail = await fetchAnimeDetail(animeId);
     animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-"));
-    const lastEpisode = animeDetail.episode_list.length + 1;
+    const lastEpisode = animeDetail.episode_list.length;
     return { animeId, title: animeDetail.anime_detail.title, lastEpisode };
   }));
 
