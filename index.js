@@ -123,7 +123,6 @@ app.get('/', async (req, res) => {
       <html lang="en">
       <head>
           <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
           <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
           <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
           <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
@@ -303,7 +302,6 @@ app.get('/save', async (req, res) => {
     <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Saved Anime - PURNIME TV</title>
       <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
@@ -373,9 +371,9 @@ app.get('/save', async (req, res) => {
           ${bookmarkedAnime.length === 0 ? `
             <div class="col">
               <div class="alert alert-warning text-center" role="alert">
-                No anime saved yet. Start saving your favorite anime!
+                <h1>Gak ada anime yang di save</h1></div>
                 <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
-<div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
+                <div id="container-b6c17a23ebf18433686f5349b38b8a9d">
               </div>
             </div>
           ` : bookmarkedAnime.map(anime => `
@@ -476,7 +474,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Nonton ${animeDetail.anime_detail.title} - Episode ${episodeNumber} | PURNIME TV</title>
         <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PURNIME TV, situs streaming anime terbaik.">
         <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
@@ -585,7 +582,6 @@ app.post('/search', async (req, res) => {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Hasil Pencarian: ${searchQuery} - PURNIME TV</title>
         <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
