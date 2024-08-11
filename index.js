@@ -36,17 +36,6 @@ async function fetchAnimeDetail(endpoint) {
   }
 }
 
-async function fetchEpisodeStream(endpoint) {
-  try {
-    const response = await axios.get(`${basenya}/api/v1/episode/${endpoint}`);
-    return response.data || {};
-  } catch (error) {
-    console.error('Error fetching episode stream:', error.message);
-    return {};
-  }
-}
-
-
 function insertAds() {
   return `
       <script type="text/javascript">
@@ -459,64 +448,15 @@ app.post('/delete/:animeId', (req, res) => {
 
 app.get('/anime/:animeId/:episode?', async (req, res) => {
   try {
-    const animeId = req.params.animeId;
-    const episodeNumber = parseInt(req.params.episode) || 1;
-
-    const animeDetail = await fetchAnimeDetail(animeId);
-    const episodeList = animeDetail.episode_list || [];
-
-    if (episodeNumber < 1 || episodeNumber > episodeList.length) {
-      return res.status(404).send('Episode not found');
-    }
-
-    const selectedEpisode = episodeList[episodeList.length - episodeNumber];
-    const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
-
-    const serverOptions = [];
-    const mirrors = ['mirror_embed1', 'mirror_embed2', 'mirror_embed3'];
-
-    mirrors.forEach(mirrorKey => {
-      const mirrorData = episodeData[mirrorKey];
-      if (mirrorData && mirrorData.straming.length > 0) {
-        mirrorData.straming.forEach(server => {
-          serverOptions.push({
-            name: `${server.driver.trim()} - ${mirrorData.quality}`,
-            link: server.link
-          });
-        });
-      }
-    });
-
-    let streamingUrl;
-    const defaultMirror = episodeData.mirror_embed3;
-    if (defaultMirror && defaultMirror.straming.length > 0) {
-      const defaultLink = defaultMirror.straming[0].link;
-      const defaultResponse = await axios.get(`${basenya}${defaultLink}`);
-      streamingUrl = defaultResponse.data.streaming_url || episodeData.streamLink;
-    } else {
-      streamingUrl = episodeData.streamLink;
-    }
-
-    if (req.query.server) {
-      const selectedServer = serverOptions.find(server => server.name === req.query.server);
-      if (selectedServer) {
-        const streamResponse = await axios.get(`${basenya}${selectedServer.link}`);
-        streamingUrl = streamResponse.data.streaming_url || streamingUrl;
-      }
-    }
-
-    const nextEpisode = episodeNumber + 1;
-    const prevEpisode = episodeNumber - 1;
-    res.cookie(`lastEpisode_${animeId}`, episodeNumber, { maxAge: 365 * 24 * 60 * 60 * 1000 });
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nonton ${animeDetail.anime_detail.title} - Episode ${episodeNumber} | PURNIME TV</title>
-        <meta name="description" content="Tonton ${animeDetail.anime_detail.title} episode ${episodeNumber} di PURNIME TV, situs streaming anime terbaik.">
-        <meta name="keywords" content="${animeDetail.anime_detail.title}, streaming anime, streaming donghua, nonton anime, nonton donghua">
+        <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
+        <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
+        <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
         <meta name="google-adsense-account" content="ca-pub-5220496608138780">
         <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
@@ -547,60 +487,151 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             </div>
           </nav>
           ${insertAds()}
-          <div class="anime-detail mb-4">
-            <div class="anime-thumb">
-              <img src="${animeDetail.anime_detail.thumb}" alt="${animeDetail.anime_detail.title}">
-            </div>
-            <div class="anime-info">
-              <h1>${animeDetail.anime_detail.title}</h1>
-              <ul>
-                ${animeDetail.anime_detail.detail.map(detail => `
-                  <li>${detail}</li>
-                `).join('')}
-              </ul>
-            </div>
-          </div>
-          <div class="mt-4">
-            <h3>Synopsis</h3>
-            <p>${animeDetail.anime_detail.sinopsis}</p>
-          </div>
+          <div id="anime-detail-container" class="anime-detail mb-4"></div>
           <div class="d-flex justify-content-between mb-4 mt-4">
             <a href="/" class="btn btn-outline-light"><i class="fas fa-home"></i> Home</a>
             <form method="GET" class="d-inline-flex">
-              <input type="hidden" name="episode" value="${episodeNumber}">
-              <select name="server" class="form-select me-2" onchange="this.form.submit()">
+              <input type="hidden" name="episode" id="current-episode" value="1">
+              <select name="server" id="server-select" class="form-select me-2">
                 <option selected disabled>Select Server</option>
-                ${serverOptions.map(server => `
-                  <option value="${server.name}" ${req.query.server === server.name ? 'selected' : ''}>
-                    ${server.name}
-                  </option>
-                `).join('')}
               </select>
               <noscript><button type="submit" class="btn btn-outline-light">Switch</button></noscript>
             </form>
           </div>
           <div class="iframe-container">
-            <iframe src="${streamingUrl}" frameborder="0" allowfullscreen></iframe>
+            <iframe id="streaming-iframe" src="" frameborder="0" allowfullscreen></iframe>
           </div>
           <div class="d-flex justify-content-between mt-4">
-            <a href="/anime/${animeId}/${prevEpisode}" class="btn btn-outline-light ${prevEpisode < 1 ? 'disabled' : ''}"><i class="fas fa-arrow-left"></i> Previous Episode</a>
-            <a href="/anime/${animeId}/${nextEpisode}" class="btn btn-outline-light ${nextEpisode > episodeList.length ? 'disabled' : ''}">Next Episode <i class="fas fa-arrow-right"></i></a>
+            <button id="prev-episode" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Previous Episode</button>
+            <button id="next-episode" class="btn btn-outline-light">Next Episode <i class="fas fa-arrow-right"></i></button>
           </div>
           <div class="mt-4">
             <h2>List Episode</h2>
-            <div class="list-group">
-              ${episodeList.map(episode => `
-                <a href="/anime/${animeId}/${episodeList.length - episodeList.indexOf(episode)}" class="list-group-item list-group-item-action ${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}">
-                  ${episode.episode_title}
-                </a>
-              `).join('')}
-            </div>
+            <div id="episode-list" class="list-group"></div>
           </div>
           <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
-<div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>     
+          <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+        <script>
+          const basenya = "${basenya}";
+          let animeId = "${req.params.animeId}";
+          let currentEpisodeNumber = parseInt("${req.params.episode || 1}");
+
+          async function fetchAnimeDetail(endpoint) {
+            try {
+              const response = await fetch(\`\${basenya}/api/v1/detail/\${endpoint}\`);
+              return await response.json();
+            } catch (error) {
+              console.error('Error fetching anime detail:', error.message);
+              return {};
+            }
+          }
+
+          async function fetchEpisodeStream(endpoint) {
+            try {
+              const response = await fetch(\`\${basenya}/api/v1/episode/\${endpoint}\`);
+              return await response.json();
+            } catch (error) {
+              console.error('Error fetching episode stream:', error.message);
+              return {};
+            }
+          }
+
+          function populateAnimeDetail(animeDetail, episodeData, serverOptions) {
+            const animeDetailContainer = document.getElementById('anime-detail-container');
+            animeDetailContainer.innerHTML = \`
+              <div class="anime-thumb">
+                <img src="\${animeDetail.anime_detail.thumb}" alt="\${animeDetail.anime_detail.title}">
+              </div>
+              <div class="anime-info">
+                <h1>\${animeDetail.anime_detail.title}</h1>
+                <ul>
+                  \${animeDetail.anime_detail.detail.map(detail => \`
+                    <li>\${detail}</li>
+                  \`).join('')}
+                </ul>
+                <h3>Synopsis</h3>
+                <p>\${animeDetail.anime_detail.sinopsis}</p>
+              </div>
+            \`;
+
+            const serverSelect = document.getElementById('server-select');
+            serverOptions.forEach(server => {
+              const option = document.createElement('option');
+              option.value = server.name;
+              option.textContent = server.name;
+              serverSelect.appendChild(option);
+            });
+          }
+
+          function populateEpisodeList(episodeList, selectedEpisode) {
+            const episodeListElement = document.getElementById('episode-list');
+            episodeListElement.innerHTML = episodeList.map((episode, index) => \`
+              <a href="#" class="list-group-item list-group-item-action \${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}" onclick="loadEpisode(\${episodeList.length - index})">
+                \${episode.episode_title}
+              </a>
+            \`).join('');
+          }
+
+          async function loadEpisode(episodeNumber) {
+            currentEpisodeNumber = episodeNumber;
+            document.getElementById('current-episode').value = episodeNumber;
+            const animeDetail = await fetchAnimeDetail(animeId);
+            const episodeList = animeDetail.episode_list || [];
+
+            if (episodeNumber < 1 || episodeNumber > episodeList.length) {
+              alert('Episode not found');
+              return;
+            }
+
+            const selectedEpisode = episodeList[episodeList.length - episodeNumber];
+            const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
+
+            const serverOptions = [];
+            const mirrors = ['mirror_embed1', 'mirror_embed2', 'mirror_embed3'];
+
+            mirrors.forEach(mirrorKey => {
+              const mirrorData = episodeData[mirrorKey];
+              if (mirrorData && mirrorData.straming.length > 0) {
+                mirrorData.straming.forEach(server => {
+                  serverOptions.push({
+                    name: \`\${server.driver.trim()} - \${mirrorData.quality}\`,
+                    link: server.link
+                  });
+                });
+              }
+            });
+
+            populateAnimeDetail(animeDetail, episodeData, serverOptions);
+            populateEpisodeList(episodeList, selectedEpisode);
+
+            let streamingUrl = episodeData.streamLink;
+            const defaultMirror = episodeData.mirror_embed3;
+            if (defaultMirror && defaultMirror.straming.length > 0) {
+            const mentah = defaultMirror.straming[0].link;
+            const responseMentah = await fetch(\`\${basenya}\${mentah}\`);
+            const mentahData = await responseMentah.json();
+            streamingUrl = mentahData.streaming_url || streamingUrl;
+            }
+
+            const selectedServer = serverOptions.find(server => server.name === document.getElementById('server-select').value);
+            if (selectedServer) {
+              const streamResponse = await fetch(\`\${basenya}\${selectedServer.link}\`);
+              const streamData = await streamResponse.json();
+              streamingUrl = streamData.streaming_url || streamingUrl;
+            }
+
+            document.getElementById('streaming-iframe').src = streamingUrl;
+          }
+
+          document.getElementById('server-select').addEventListener('change', () => loadEpisode(currentEpisodeNumber));
+          document.getElementById('prev-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber - 1));
+          document.getElementById('next-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber + 1));
+
+          loadEpisode(currentEpisodeNumber);
+        </script>
       </body>
       </html>
     `);
