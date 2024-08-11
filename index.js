@@ -314,13 +314,8 @@ app.get('/save', async (req, res) => {
 
   const bookmarkedAnime = await Promise.all(bookmarks.map(async animeId => {
     const animeDetail = await fetchAnimeDetail(animeId);
-    let lastEpisode = "Astaga naga gabut"
-    const tq = req.cookies[`lastEpisode_${animeId}`];
-    if (tq) {
-    lastEpisode = tq
-    } else {
-    lastEpisode = 1
-    }
+    animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-"));
+    const lastEpisode = animeDetail.episode_list.length + 1;
     return { animeId, title: animeDetail.anime_detail.title, lastEpisode };
   }));
 
