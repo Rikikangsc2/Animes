@@ -9,6 +9,23 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('public'));
+app.use((req, res, next) => {
+    const cacheTime = 7 * 60 * 60; // 7 jam dalam detik
+    const url = req.url;
+
+    if (url.startsWith('/delete') || url.startsWith('/save')) {
+        res.setHeader('Cache-Control', 'no-store');
+    } else {
+        if (req.headers['cache-control'] && req.headers['cache-control'].includes('no-cache')) {
+            res.setHeader('Cache-Control', 'no-store');
+        } else {
+            res.setHeader('Cache-Control', `public, max-age=${cacheTime}, immutable`);
+        }
+    }
+
+    next();
+});
+
 
 async function fetchAnimeData(page) {
   try {
