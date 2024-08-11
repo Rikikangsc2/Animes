@@ -9,6 +9,17 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('public'));
+app.use((req, res, next) => {
+    const cacheTime = 7 * 60 * 60; // 7 jam dalam detik
+
+    if (req.headers['cache-control'] && req.headers['cache-control'].includes('no-cache')) {
+        res.setHeader('Cache-Control', 'no-store');
+    } else {
+        res.setHeader('Cache-Control', `public, max-age=${cacheTime}, immutable`);
+    }
+
+    next();
+});
 
 async function fetchAnimeData(page) {
   try {
@@ -434,7 +445,16 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
       }
     });
 
-    let streamingUrl = episodeData.streamLink;
+    let streamingUrl;
+    const defaultMirror = episodeData.mirror_embed3;
+    if (defaultMirror && defaultMirror.straming.length > 0) {
+      const defaultLink = defaultMirror.straming[0].link;
+      const defaultResponse = await axios.get(`${basenya}${defaultLink}`);
+      streamingUrl = defaultResponse.data.streaming_url || episodeData.streamLink;
+    } else {
+      streamingUrl = episodeData.streamLink;
+    }
+
     if (req.query.server) {
       const selectedServer = serverOptions.find(server => server.name === req.query.server);
       if (selectedServer) {
@@ -547,6 +567,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 app.post('/search', async (req, res) => {
   try {
