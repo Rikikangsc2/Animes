@@ -9,22 +9,6 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('public'));
-app.use((req, res, next) => {
-    const cacheTime = 7 * 60 * 60; // 7 jam dalam detik
-    const url = req.url;
-
-    if (url.startsWith('/delete') || url.startsWith('/save')) {
-        res.setHeader('Cache-Control', 'no-store');
-    } else {
-        if (req.headers['cache-control'] && req.headers['cache-control'].includes('no-cache')) {
-            res.setHeader('Cache-Control', 'no-store');
-        } else {
-            res.setHeader('Cache-Control', `public, max-age=${cacheTime}, immutable`);
-        }
-    }
-
-    next();
-});
 
 async function fetchAnimeData(page) {
   try {
@@ -81,17 +65,6 @@ function getPagination(currentPage, totalPages) {
 
 function insertAds() {
   return `
-    <div class="text-center mb-4">
-      <script type="text/javascript">
-        atOptions = {
-          'key' : '820d725ae89df09a522cbf33be858824',
-          'format' : 'iframe',
-          'height' : 60,
-          'width' : 468,
-          'params' : {}
-        };
-      </script>
-      <script type="text/javascript" src="//www.topcreativeformat.com/820d725ae89df09a522cbf33be858824/invoke.js"></script>
       <script type="text/javascript">
         atOptions = {
           'key' : 'dd8ebba365a2d1ae7ca5e92744e27e1f',
@@ -109,7 +82,7 @@ function insertAds() {
 app.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 10;
+    const pageSize = 9;
 
     const ongoingAnime = await fetchAnimeData(page);
     const animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
@@ -123,6 +96,7 @@ app.get('/', async (req, res) => {
       <html lang="en">
       <head>
           <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
           <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
           <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
@@ -135,17 +109,27 @@ app.get('/', async (req, res) => {
                   background-color: #121212; 
                   color: #e0e0e0; 
                   font-family: 'Arial', sans-serif;
+                  margin: 0;
+                  padding: 0;
+              }
+              .container {
+                  max-width: 100%;
+                  padding: 0 10px;
               }
               .anime-thumbnail { 
-                  max-height: 230px; 
+                  max-height: 200px; 
                   border-radius: 10px; 
+                  object-fit: cover;
               }
               .card {
                   border: 1px solid #333;
                   background-color: #1e1e1e;
+                  height: 100%;
+                  display: flex;
+                  flex-direction: column;
               }
               .card-title {
-                  font-size: 1.2rem;
+                  font-size: 1.1rem;
                   font-weight: 600;
                   color: #ffbf00;
                   white-space: nowrap;
@@ -153,7 +137,7 @@ app.get('/', async (req, res) => {
                   text-overflow: ellipsis;
               }
               .card-text {
-                  font-size: 0.9rem;
+                  font-size: 0.85rem;
                   color: #bbb;
               }
               .btn-watch {
@@ -161,8 +145,9 @@ app.get('/', async (req, res) => {
                   border: none;
                   border-radius: 5px;
                   padding: 8px 16px;
-                  font-size: 0.9rem;
+                  font-size: 0.85rem;
                   color: #fff;
+                  margin-top: auto;
               }
               .btn-watch:hover {
                   background-color: #43a047;
@@ -172,7 +157,7 @@ app.get('/', async (req, res) => {
                   border: none;
                   border-radius: 5px;
                   padding: 8px 16px;
-                  font-size: 0.9rem;
+                  font-size: 0.85rem;
                   color: #fff;
               }
               .btn-save:hover {
@@ -201,12 +186,38 @@ app.get('/', async (req, res) => {
               .nav-link:hover {
                   color: #ffbf00;
               }
+              .ad-container {
+                  margin-top: 20px;
+                  display: flex;
+                  justify-content: center;
+                  overflow: hidden;
+                  max-height: 250px;
+              }
+              .ad-container iframe {
+                  max-width: 100%;
+                  height: auto;
+                  object-fit: contain;
+              }
+              .footer-ad-container {
+                  display: flex;
+                  justify-content: center;
+                  margin-top: 10px;
+                  padding: 10px;
+                  background-color: #1e1e1e;
+                  border: 1px solid #333;
+                  border-radius: 10px;
+              }
+              .footer-ad-container iframe {
+                  width: 300px;
+                  height: 50px;
+                  object-fit: contain;
+              }
           </style>
       </head>
       <body>
-          <div class="container mt-5">
+          <div class="container mt-4">
               <h1 class="text-center mb-4">PUR-NIME TV</h1>
-              <nav class="navbar navbar-dark bg-dark mb-4">
+              <nav class="navbar navbar-dark bg-dark mb-3">
                 <div class="container-fluid">
                   <a class="navbar-brand" href="/">Home</a>
                   <div class="d-flex">
@@ -215,7 +226,7 @@ app.get('/', async (req, res) => {
                 </div>
               </nav>
               ${insertAds()}
-              <form action="/search" method="POST" class="d-flex justify-content-center mb-4"> 
+              <form action="/search" method="POST" class="d-flex justify-content-center mb-3"> 
                   <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search">
                   <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
               </form>
@@ -238,13 +249,21 @@ app.get('/', async (req, res) => {
             </div>
         </div>
     `).join('')}
-</div>
-<script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
-<div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
-          
-              <div class="d-flex justify-content-between mt-4">
+              </div>
+
+              <div class="d-flex justify-content-between mt-3">
                   <a href="/?page=${prevPage}" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Back Page</a>
                   <a href="/?page=${nextPage}" class="btn btn-outline-light">Next Page <i class="fas fa-arrow-right"></i></a>
+              </div>
+
+              <div class="ad-container">
+                <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
+                <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
+              </div>
+
+              <div class="footer-ad-container">
+                <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
+                <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
               </div>
           </div>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -265,9 +284,10 @@ app.get('/', async (req, res) => {
     `);
   } catch (error) {
     console.error('Error rendering home page:', error.message);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send('Internal Server Error'); 
   }
 });
+
 
 app.post('/save/:animeId', (req, res) => {
   const animeId = req.params.animeId;
