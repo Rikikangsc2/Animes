@@ -9,33 +9,6 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('public'));
-app.use((req, res, next) => {
-    const cacheTime = 7 * 60 * 60; // 7 jam dalam detik
-    const url = req.url;
-
-    if (url.startsWith('/delete') || url.startsWith('/save')) {
-        res.setHeader('Cache-Control', 'no-store');
-    } else {
-        if (req.headers['cache-control'] && req.headers['cache-control'].includes('no-cache')) {
-            res.setHeader('Cache-Control', 'no-store');
-        } else {
-            res.setHeader('Cache-Control', `public, max-age=${cacheTime}, immutable`);
-        }
-    }
-
-    next();
-});
-
-
-async function fetchAnimeData(page) {
-  try {
-    const response = await axios.get(`${basenya}/api/v1/ongoing/${page}`);
-    return response.data.ongoing || [];
-  } catch (error) {
-    console.error('Error fetching data:', error.message);
-    return [];
-  }
-}
 
 async function searchAnime(query) {
   try {
@@ -98,16 +71,6 @@ function insertAds() {
 
 app.get('/', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const pageSize = 9;
-
-    const ongoingAnime = await fetchAnimeData(page);
-    const animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
-    const paginatedAnime = animeData.slice((page - 1) * pageSize, page * pageSize);
-
-    const totalPages = Math.ceil(animeData.length / pageSize);
-    const { nextPage, prevPage } = getPagination(page, totalPages);
-
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -242,42 +205,19 @@ app.get('/', async (req, res) => {
                   </div>
                 </div>
               </nav>
-              ${insertAds()}
               <form action="/search" method="POST" class="d-flex justify-content-center mb-3"> 
                   <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search">
                   <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
               </form>
-              <div class="row row-cols-1 row-cols-md-3 g-4">
-    ${paginatedAnime.map(anime => `
-        <div class="col">
-            <div class="card h-100 text-white">
-                <a href="/anime/${anime.endpoint}" style="text-decoration: none;"> 
-                    <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
-                    <div class="card-body">
-                        <h5 class="card-title">${anime.anime_detail.title}</h5>
-                        <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
-                        <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
-                        <p class="card-text">${anime.anime_detail.detail[10]}</p>
-                    </div>
-                </a>
-                <button class="btn btn-save" onclick="event.preventDefault(); saveAnime('${anime.endpoint}')">
-                    <i class="fas fa-save"></i> Simpan
-                </button>
-            </div>
-        </div>
-    `).join('')}
-              </div>
-
+              <div class="row row-cols-1 row-cols-md-3 g-4" id="anime-list"></div>
               <div class="d-flex justify-content-between mt-3">
-                  <a href="/?page=${prevPage}" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Back Page</a>
-                  <a href="/?page=${nextPage}" class="btn btn-outline-light">Next Page <i class="fas fa-arrow-right"></i></a>
+                  <button id="prev-page" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Back Page</button>
+                  <button id="next-page" class="btn btn-outline-light">Next Page <i class="fas fa-arrow-right"></i></button>
               </div>
-
               <div class="ad-container">
                 <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
                 <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
               </div>
-
               <div class="footer-ad-container">
                 <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
                 <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
@@ -286,6 +226,72 @@ app.get('/', async (req, res) => {
           <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
           <script>
+            const basenya = "${basenya}";
+            let currentPage = 1;
+            const pageSize = 9;
+
+            async function fetchAnimeData(page) {
+              try {
+                const response = await fetch(\`\${basenya}/api/v1/ongoing/\${page}\`);
+                const data = await response.json();
+                return data.ongoing || [];
+              } catch (error) {
+                console.error('Error fetching data:', error.message);
+                return [];
+              }
+            }
+
+            async function fetchAnimeDetail(endpoint) {
+              try {
+                const response = await fetch(\`\${basenya}/api/v1/detail/\${endpoint}\`);
+                const animeDetail = await response.json();
+                animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-"));
+                return animeDetail || {};
+              } catch (error) {
+                console.error('Error fetching anime detail:', error.message);
+                return {};
+              }
+            }
+
+            function renderAnime(animeData) {
+              const animeList = document.getElementById('anime-list');
+              animeList.innerHTML = animeData.map(anime => \`
+                <div class="col">
+                    <div class="card h-100 text-white">
+                        <a href="/anime/\${anime.endpoint}" style="text-decoration: none;"> 
+                            <img src="\${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="\${anime.anime_detail.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">\${anime.anime_detail.title}</h5>
+                                <p class="card-text">\${anime.anime_detail.detail[2]} - \${anime.anime_detail.detail[6]}</p>
+                                <p class="card-text">\${anime.episode_list[0]?.episode_date || ''}</p>
+                                <p class="card-text">\${anime.anime_detail.detail[10]}</p>
+                            </div>
+                        </a>
+                        <button class="btn btn-save" onclick="event.preventDefault(); saveAnime('\${anime.endpoint}')">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                    </div>
+                </div>
+              \`).join('');
+            }
+
+            async function loadAnimePage(page) {
+              currentPage = page;
+              const ongoingAnime = await fetchAnimeData(page);
+              const animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
+              renderAnime(animeData);
+            }
+
+            document.getElementById('prev-page').addEventListener('click', () => {
+              if (currentPage > 1) loadAnimePage(currentPage - 1);
+            });
+
+            document.getElementById('next-page').addEventListener('click', () => {
+              loadAnimePage(currentPage + 1);
+            });
+
+            loadAnimePage(currentPage);
+
             function saveAnime(animeId) {
               fetch('/save/' + animeId, { method: 'POST' })
                 .then(response => {
@@ -301,7 +307,7 @@ app.get('/', async (req, res) => {
     `);
   } catch (error) {
     console.error('Error rendering home page:', error.message);
-    res.status(500).send('Internal Server Error'); 
+    res.status(500).send('Internal Server Error');
   }
 });
 
