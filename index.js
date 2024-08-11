@@ -203,6 +203,7 @@ app.get('/', async (req, res) => {
                   <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search">
                   <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
               </form>
+              ${insertAds()}
               <div class="row row-cols-1 row-cols-md-3 g-4" id="anime-list"></div>
               <div class="d-flex justify-content-between mt-3">
                   <button id="prev-page" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Back Page</button>
