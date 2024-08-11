@@ -54,6 +54,14 @@ function insertAds() {
 
 app.get('/', async (req, res) => {
   try {
+    const last = (riki) => {
+      const last = null
+      const tq = req.cookies[`lastEpisode_${riki}`];
+      if (!tq) {
+        last = 1
+      }
+      return last;
+    }
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
@@ -242,7 +250,7 @@ app.get('/', async (req, res) => {
               animeList.innerHTML = animeData.map(anime => \`
                 <div class="col">
                     <div class="card h-100 text-white">
-                        <a href="/anime/\${anime.endpoint}" style="text-decoration: none;"> 
+                        <a href="/anime/\${anime.endpoint}/${last(`\${anime.endpoint}`)}" style="text-decoration: none;"> 
                             <img src="\${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="\${anime.anime_detail.title}">
                             <div class="card-body">
                                 <h5 class="card-title">\${anime.anime_detail.title}</h5>
@@ -448,6 +456,7 @@ app.post('/delete/:animeId', (req, res) => {
 
 app.get('/anime/:animeId/:episode?', async (req, res) => {
   try {
+    res.cookie(`lastEpisode_${req.params.animeId}`, req.params.episode, { maxAge: 365 * 24 * 60 * 60 * 1000 });
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
