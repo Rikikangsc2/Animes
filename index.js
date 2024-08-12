@@ -715,12 +715,23 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                 loadingOverlay.style.display = 'none';
                 document.body.style.overflow = ''; // Enable scrolling
               };
+
+              // Update button states based on episode number
+              updateEpisodeButtons(episodeList.length);
             } catch (error) {
               document.getElementById('error-message').textContent = 'Failed to load episode data. Please try again later.';
               loadingOverlay.style.display = 'none';
               iframeError.style.display = 'block';
               document.body.style.overflow = ''; // Enable scrolling
             }
+          }
+
+          function updateEpisodeButtons(totalEpisodes) {
+            const prevButton = document.getElementById('prev-episode');
+            const nextButton = document.getElementById('next-episode');
+
+            prevButton.disabled = currentEpisodeNumber <= 1;
+            nextButton.disabled = currentEpisodeNumber >= totalEpisodes;
           }
 
           document.getElementById('server-select').addEventListener('change', (e) => {
