@@ -533,9 +533,19 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
               text-align: center;
               margin-top: 20px;
           }
+          .history-item {
+              background-color: #2e7d32;
+              padding: 10px;
+              margin-bottom: 5px;
+              border-radius: 5px;
+              display: flex;
+              align-items: center;
+          }
           .history-item a {
               color: #ffffff;
               text-decoration: none;
+              margin-left: 10px;
+              flex-grow: 1;
           }
           .history-item a:hover {
               color: #ffbf00;
@@ -564,7 +574,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           <div class="mt-4">
             <h2>Watch History</h2>
             <div id="watch-history" class="list-group"></div>
-          </div>
           <div class="d-flex justify-content-between mb-4 mt-4">
             <a href="/" class="btn btn-outline-light"><i class="fas fa-home"></i> Home</a>
             <form method="GET" class="d-inline-flex">
@@ -586,6 +595,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           <div class="mt-4">
             <h2>List Episode</h2>
             <div id="episode-list" class="list-group"></div>
+          </div>
           </div>
           <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
           <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
@@ -665,12 +675,12 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             return history ? JSON.parse(decodeURIComponent(history.split('=')[1])) : [];
           }
 
-          function updateWatchHistory(animeTitle, episodeNumber) {
+          function updateWatchHistory(animeTitle, episodeEndpoint) {
             const history = getWatchHistory();
-            const newEntry = \`\${animeTitle} - Episode \${episodeNumber}\`;
+            const newEntry = { title: animeTitle, endpoint: episodeEndpoint };
 
-            // Add the new entry and limit history to 5 items
-            const updatedHistory = [newEntry, ...history.filter(entry => entry !== newEntry)].slice(0, 10);
+            // Add the new entry, filter out duplicates, and limit history to 10 items
+            const updatedHistory = [newEntry, ...history.filter(entry => entry.endpoint !== episodeEndpoint)].slice(0, 10);
 
             // Update the cookie
             document.cookie = \`watchHistory=\${encodeURIComponent(JSON.stringify(updatedHistory))}; path=/; max-age=31536000\`; // 1 year expiration
@@ -680,14 +690,12 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           function populateWatchHistory() {
             const history = getWatchHistory();
             const historyContainer = document.getElementById('watch-history');
-            historyContainer.innerHTML = history.map(item => {
-              const [title, episode] = item.split(' - ');
-              return \`
-                <div class="history-item">
-                  <a href="/anime/\${title.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}/\${episode.split(' ')[1]}">\${item}</a>
-                </div>
-              \`;
-            }).join('');
+            historyContainer.innerHTML = history.map(item => \`
+              <div class="history-item">
+                <i class="fas fa-history"></i>
+                <a href="/anime/\${animeId}/\${item.endpoint.split('-').pop()}">\${item.title} - Episode \${item.endpoint.split('-').pop()}</a>
+              </div>
+            \`).join('');
           }
 
           async function loadEpisode(episodeNumber) {
@@ -756,8 +764,8 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                 document.body.style.overflow = '';
               };
 
-              // Update watch history
-              updateWatchHistory(animeDetail.anime_detail.title, episodeNumber);
+              // Update watch history with episode endpoint
+              updateWatchHistory(animeDetail.anime_detail.title, selectedEpisode.episode_endpoint);
 
               updateEpisodeButtons(episodeList.length);
             } catch (error) {
@@ -794,7 +802,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 
 app.post('/search', async (req, res) => {
