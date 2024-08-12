@@ -533,6 +533,14 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
               text-align: center;
               margin-top: 20px;
           }
+          .history-item a {
+              color: #ffffff;
+              text-decoration: none;
+          }
+          .history-item a:hover {
+              color: #ffbf00;
+              text-decoration: underline;
+          }
         </style>
       </head>
       <body>
@@ -553,6 +561,10 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           </nav>
           <div id="anime-detail-container" class="anime-detail mb-4"></div>
           <div class="error-message" id="error-message"></div>
+          <div class="mt-4">
+            <h2>Watch History</h2>
+            <div id="watch-history" class="list-group"></div>
+          </div>
           <div class="d-flex justify-content-between mb-4 mt-4">
             <a href="/" class="btn btn-outline-light"><i class="fas fa-home"></i> Home</a>
             <form method="GET" class="d-inline-flex">
@@ -584,7 +596,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           const basenya = "${basenya}";
           let animeId = "${req.params.animeId}";
           let currentEpisodeNumber = parseInt("${req.params.episode || 1}");
-          let selectedServer = null; // To store the selected server
+          let selectedServer = null;
 
           async function fetchAnimeDetail(endpoint) {
             try {
@@ -625,7 +637,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             \`;
 
             const serverSelect = document.getElementById('server-select');
-            serverSelect.innerHTML = '<option selected disabled>Select Server</option>'; // Clear existing options
+            serverSelect.innerHTML = '<option selected disabled>Select Server</option>';
 
             serverOptions.forEach(server => {
               const option = document.createElement('option');
@@ -635,7 +647,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             });
 
             if (selectedServer) {
-              serverSelect.value = selectedServer; // Reapply the selected server
+              serverSelect.value = selectedServer;
             }
           }
 
@@ -648,11 +660,40 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             \`).join('');
           }
 
+          function getWatchHistory() {
+            const history = document.cookie.split('; ').find(row => row.startsWith('watchHistory='));
+            return history ? JSON.parse(decodeURIComponent(history.split('=')[1])) : [];
+          }
+
+          function updateWatchHistory(animeTitle, episodeNumber) {
+            const history = getWatchHistory();
+            const newEntry = \`\${animeTitle} - Episode \${episodeNumber}\`;
+
+            // Add the new entry and limit history to 5 items
+            const updatedHistory = [newEntry, ...history.filter(entry => entry !== newEntry)].slice(0, 10);
+
+            // Update the cookie
+            document.cookie = \`watchHistory=\${encodeURIComponent(JSON.stringify(updatedHistory))}; path=/; max-age=31536000\`; // 1 year expiration
+            populateWatchHistory();
+          }
+
+          function populateWatchHistory() {
+            const history = getWatchHistory();
+            const historyContainer = document.getElementById('watch-history');
+            historyContainer.innerHTML = history.map(item => {
+              const [title, episode] = item.split(' - ');
+              return \`
+                <div class="history-item">
+                  <a href="/anime/\${title.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}/\${episode.split(' ')[1]}">\${item}</a>
+                </div>
+              \`;
+            }).join('');
+          }
+
           async function loadEpisode(episodeNumber) {
-            // Show unified loading screen
             const loadingOverlay = document.getElementById('loading-overlay');
             loadingOverlay.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            document.body.style.overflow = 'hidden';
 
             currentEpisodeNumber = episodeNumber;
             document.getElementById('current-episode').value = episodeNumber;
@@ -668,7 +709,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             if (episodeNumber < 1 || episodeNumber > episodeList.length) {
               document.getElementById('error-message').textContent = 'Episode not found';
               loadingOverlay.style.display = 'none';
-              document.body.style.overflow = ''; // Enable scrolling
+              document.body.style.overflow = '';
               return;
             }
 
@@ -696,7 +737,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
 
               let streamingUrl = episodeData.streamLink;
 
-              // Use the selected server if available, otherwise use the default
               const selectedServerOption = serverOptions.find(server => server.name === document.getElementById('server-select').value);
               if (selectedServerOption) {
                 const streamResponse = await fetch(\`\${basenya}\${selectedServerOption.link}\`);
@@ -708,21 +748,23 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
               iframe.onload = () => {
                 iframe.style.display = 'block';
                 loadingOverlay.style.display = 'none';
-                document.body.style.overflow = ''; // Enable scrolling
+                document.body.style.overflow = '';
               };
               iframe.onerror = () => {
                 iframeError.style.display = 'block';
                 loadingOverlay.style.display = 'none';
-                document.body.style.overflow = ''; // Enable scrolling
+                document.body.style.overflow = '';
               };
 
-              // Update button states based on episode number
+              // Update watch history
+              updateWatchHistory(animeDetail.anime_detail.title, episodeNumber);
+
               updateEpisodeButtons(episodeList.length);
             } catch (error) {
               document.getElementById('error-message').textContent = 'Failed to load episode data. Please try again later.';
               loadingOverlay.style.display = 'none';
               iframeError.style.display = 'block';
-              document.body.style.overflow = ''; // Enable scrolling
+              document.body.style.overflow = '';
             }
           }
 
@@ -735,13 +777,14 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           }
 
           document.getElementById('server-select').addEventListener('change', (e) => {
-            selectedServer = e.target.value; // Store the selected server
+            selectedServer = e.target.value;
             loadEpisode(currentEpisodeNumber);
           });
           document.getElementById('prev-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber - 1));
           document.getElementById('next-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber + 1));
 
           loadEpisode(currentEpisodeNumber);
+          populateWatchHistory();
         </script>
       </body>
       </html>
@@ -751,6 +794,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 
 app.post('/search', async (req, res) => {
