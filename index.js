@@ -197,6 +197,7 @@ app.get('/', async (req, res) => {
       <body>
           <div class="container mt-4">
               <h1 class="text-center mb-4">PUR-NIME TV</h1>
+              ${insertAds()}
               <nav class="navbar navbar-dark bg-dark mb-3">
                 <div class="container-fluid">
                   <a class="navbar-brand" href="/">Home</a>
@@ -209,7 +210,6 @@ app.get('/', async (req, res) => {
                   <input class="form-control me-2" type="search" name="search" placeholder="Search Anime" aria-label="Search">
                   <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
               </form>
-              ${insertAds()}
               <div id="loading-spinner" class="loading-container">
                   <div class="spinner-border text-light" role="status">
                       <span class="visually-hidden">Loading...</span>
@@ -541,6 +541,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
               <span class="visually-hidden">Loading...</span>
           </div>
         </div>
+        ${insertAds()}
         <div class="container mt-5">
           <nav class="navbar navbar-dark bg-dark mb-4">
             <div class="container-fluid">
@@ -550,7 +551,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
               </div>
             </div>
           </nav>
-          ${insertAds()}
           <div id="anime-detail-container" class="anime-detail mb-4"></div>
           <div class="error-message" id="error-message"></div>
           <div class="d-flex justify-content-between mb-4 mt-4">
@@ -695,13 +695,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
               populateEpisodeList(episodeList, selectedEpisode);
 
               let streamingUrl = episodeData.streamLink;
-              const defaultMirror = episodeData.mirror_embed3;
-              if (defaultMirror && defaultMirror.straming.length > 0) {
-                const mentah = defaultMirror.straming[0].link;
-                const responseMentah = await fetch(\`\${basenya}\${mentah}\`);
-                const mentahData = await responseMentah.json();
-                streamingUrl = mentahData.streaming_url || streamingUrl;
-              }
 
               // Use the selected server if available, otherwise use the default
               const selectedServerOption = serverOptions.find(server => server.name === document.getElementById('server-select').value);
