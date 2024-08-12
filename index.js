@@ -175,6 +175,23 @@ app.get('/', async (req, res) => {
                   height: 50px;
                   object-fit: contain;
               }
+              /* Loading Spinner Styles */
+              .spinner-border {
+                  width: 3rem;
+                  height: 3rem;
+                  border-width: 0.3rem;
+              }
+              .loading-container {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 200px;
+              }
+              .error-message {
+                  color: #ff0000;
+                  text-align: center;
+                  margin-top: 20px;
+              }
           </style>
       </head>
       <body>
@@ -193,7 +210,13 @@ app.get('/', async (req, res) => {
                   <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
               </form>
               ${insertAds()}
+              <div id="loading-spinner" class="loading-container">
+                  <div class="spinner-border text-light" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                  </div>
+              </div>
               <div class="row row-cols-1 row-cols-md-3 g-4" id="anime-list"></div>
+              <div class="error-message" id="error-message"></div>
               <div class="d-flex justify-content-between mt-3">
                   <button id="prev-page" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Back Page</button>
                   <button id="next-page" class="btn btn-outline-light">Next Page <i class="fas fa-arrow-right"></i></button>
@@ -217,7 +240,11 @@ app.get('/', async (req, res) => {
             async function fetchAnimeData(page) {
               try {
                 const response = await fetch(\`\${basenya}/api/v1/ongoing/\${page}\`);
+                const respon = await fetch(\`\${basenya}/api/v1/completed/\${page}\`);
+                const data2 = await respon.json();
                 const data = await response.json();
+                data.ongoing = [...data.ongoing,
+... data2.completed]
                 return data.ongoing || [];
               } catch (error) {
                 console.error('Error fetching data:', error.message);
@@ -261,9 +288,25 @@ app.get('/', async (req, res) => {
 
             async function loadAnimePage(page) {
               currentPage = page;
-              const ongoingAnime = await fetchAnimeData(page);
-              const animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
-              renderAnime(animeData);
+              const animeList = document.getElementById('anime-list');
+              const errorMessage = document.getElementById('error-message');
+              const loadingSpinner = document.getElementById('loading-spinner');
+
+              // Show loading spinner and hide previous content
+              loadingSpinner.style.display = 'flex';
+              animeList.innerHTML = '';
+              errorMessage.innerHTML = '';
+
+              try {
+                const ongoingAnime = await fetchAnimeData(page);
+                const animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
+                renderAnime(animeData);
+              } catch (error) {
+                errorMessage.textContent = 'Failed to load anime. Please try again later.';
+              } finally {
+                // Hide loading spinner
+                loadingSpinner.style.display = 'none';
+              }
             }
 
             document.getElementById('prev-page').addEventListener('click', () => {
@@ -294,7 +337,6 @@ app.get('/', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 app.post('/save/:animeId', (req, res) => {
   const animeId = req.params.animeId;
