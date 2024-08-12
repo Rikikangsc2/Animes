@@ -483,7 +483,6 @@ app.post('/delete/:animeId', (req, res) => {
   res.sendStatus(200);
 });
 
-
 app.get('/anime/:animeId/:episode?', async (req, res) => {
   try {
     res.send(`
@@ -517,36 +516,31 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
               height: 3rem;
               border-width: 0.3rem;
           }
-          .loading-container {
+          .loading-overlay {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background-color: rgba(0, 0, 0, 0.8);
+              z-index: 1000;
               display: flex;
               justify-content: center;
               align-items: center;
-              height: 200px;
-          }
-          .iframe-loading-container {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              z-index: 10;
           }
           .error-message {
               color: #ff0000;
               text-align: center;
               margin-top: 20px;
           }
-          .iframe-error-message {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              z-index: 10;
-              color: #ff0000;
-              text-align: center;
-          }
         </style>
       </head>
       <body>
+        <div id="loading-overlay" class="loading-overlay">
+          <div class="spinner-border text-light" role="status">
+              <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
         <div class="container mt-5">
           <nav class="navbar navbar-dark bg-dark mb-4">
             <div class="container-fluid">
@@ -557,11 +551,6 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             </div>
           </nav>
           ${insertAds()}
-          <div id="loading-spinner" class="loading-container">
-              <div class="spinner-border text-light" role="status">
-                  <span class="visually-hidden">Loading...</span>
-              </div>
-          </div>
           <div id="anime-detail-container" class="anime-detail mb-4"></div>
           <div class="error-message" id="error-message"></div>
           <div class="d-flex justify-content-between mb-4 mt-4">
@@ -575,13 +564,8 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             </form>
           </div>
           <div class="iframe-container">
-            <div id="iframe-loading" class="iframe-loading-container">
-              <div class="spinner-border text-light" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </div>
             <iframe id="streaming-iframe" src="" frameborder="0" allowfullscreen style="display:none;"></iframe>
-            <div id="iframe-error" class="iframe-error-message" style="display:none;">Failed to load video. Please try again later.</div>
+            <div id="iframe-error" class="error-message" style="display:none;">Failed to load video. Please try again later.</div>
           </div>
           <div class="d-flex justify-content-between mt-4">
             <button id="prev-episode" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Previous Episode</button>
@@ -600,6 +584,7 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           const basenya = "${basenya}";
           let animeId = "${req.params.animeId}";
           let currentEpisodeNumber = parseInt("${req.params.episode || 1}");
+          let selectedServer = null; // To store the selected server
 
           async function fetchAnimeDetail(endpoint) {
             try {
@@ -640,12 +625,18 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             \`;
 
             const serverSelect = document.getElementById('server-select');
+            serverSelect.innerHTML = '<option selected disabled>Select Server</option>'; // Clear existing options
+
             serverOptions.forEach(server => {
               const option = document.createElement('option');
               option.value = server.name;
               option.textContent = server.name;
               serverSelect.appendChild(option);
             });
+
+            if (selectedServer) {
+              serverSelect.value = selectedServer; // Reapply the selected server
+            }
           }
 
           function populateEpisodeList(episodeList, selectedEpisode) {
@@ -658,27 +649,26 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           }
 
           async function loadEpisode(episodeNumber) {
+            // Show unified loading screen
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+
             currentEpisodeNumber = episodeNumber;
             document.getElementById('current-episode').value = episodeNumber;
             const animeDetail = await fetchAnimeDetail(animeId);
             const episodeList = animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-")) || [];
 
-            const loadingSpinner = document.getElementById('loading-spinner');
-            const errorMessage = document.getElementById('error-message');
             const iframe = document.getElementById('streaming-iframe');
-            const iframeLoading = document.getElementById('iframe-loading');
             const iframeError = document.getElementById('iframe-error');
-            loadingSpinner.style.display = 'flex';
-            iframeLoading.style.display = 'flex';
             iframe.style.display = 'none';
             iframeError.style.display = 'none';
-            errorMessage.innerHTML = '';
             document.getElementById('anime-detail-container').innerHTML = '';
 
             if (episodeNumber < 1 || episodeNumber > episodeList.length) {
-              errorMessage.textContent = 'Episode not found';
-              loadingSpinner.style.display = 'none';
-              iframeLoading.style.display = 'none';
+              document.getElementById('error-message').textContent = 'Episode not found';
+              loadingOverlay.style.display = 'none';
+              document.body.style.overflow = ''; // Enable scrolling
               return;
             }
 
@@ -713,32 +703,37 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
                 streamingUrl = mentahData.streaming_url || streamingUrl;
               }
 
-              const selectedServer = serverOptions.find(server => server.name === document.getElementById('server-select').value);
-              if (selectedServer) {
-                const streamResponse = await fetch(\`\${basenya}\${selectedServer.link}\`);
+              // Use the selected server if available, otherwise use the default
+              const selectedServerOption = serverOptions.find(server => server.name === document.getElementById('server-select').value);
+              if (selectedServerOption) {
+                const streamResponse = await fetch(\`\${basenya}\${selectedServerOption.link}\`);
                 const streamData = await streamResponse.json();
                 streamingUrl = streamData.streaming_url || streamingUrl;
               }
 
               iframe.src = streamingUrl;
               iframe.onload = () => {
-                iframeLoading.style.display = 'none';
                 iframe.style.display = 'block';
+                loadingOverlay.style.display = 'none';
+                document.body.style.overflow = ''; // Enable scrolling
               };
               iframe.onerror = () => {
-                iframeLoading.style.display = 'none';
                 iframeError.style.display = 'block';
+                loadingOverlay.style.display = 'none';
+                document.body.style.overflow = ''; // Enable scrolling
               };
             } catch (error) {
-              errorMessage.textContent = 'Failed to load episode data. Please try again later.';
-              iframeLoading.style.display = 'none';
+              document.getElementById('error-message').textContent = 'Failed to load episode data. Please try again later.';
+              loadingOverlay.style.display = 'none';
               iframeError.style.display = 'block';
-            } finally {
-              loadingSpinner.style.display = 'none';
+              document.body.style.overflow = ''; // Enable scrolling
             }
           }
 
-          document.getElementById('server-select').addEventListener('change', () => loadEpisode(currentEpisodeNumber));
+          document.getElementById('server-select').addEventListener('change', (e) => {
+            selectedServer = e.target.value; // Store the selected server
+            loadEpisode(currentEpisodeNumber);
+          });
           document.getElementById('prev-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber - 1));
           document.getElementById('next-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber + 1));
 
