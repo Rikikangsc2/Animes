@@ -483,6 +483,7 @@ app.post('/delete/:animeId', (req, res) => {
   res.sendStatus(200);
 });
 
+
 app.get('/anime/:animeId/:episode?', async (req, res) => {
   try {
     res.send(`
@@ -511,6 +512,38 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
           .nav-link:hover {
               color: #ffbf00;
           }
+          .spinner-border {
+              width: 3rem;
+              height: 3rem;
+              border-width: 0.3rem;
+          }
+          .loading-container {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 200px;
+          }
+          .iframe-loading-container {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              z-index: 10;
+          }
+          .error-message {
+              color: #ff0000;
+              text-align: center;
+              margin-top: 20px;
+          }
+          .iframe-error-message {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              z-index: 10;
+              color: #ff0000;
+              text-align: center;
+          }
         </style>
       </head>
       <body>
@@ -524,7 +557,13 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             </div>
           </nav>
           ${insertAds()}
+          <div id="loading-spinner" class="loading-container">
+              <div class="spinner-border text-light" role="status">
+                  <span class="visually-hidden">Loading...</span>
+              </div>
+          </div>
           <div id="anime-detail-container" class="anime-detail mb-4"></div>
+          <div class="error-message" id="error-message"></div>
           <div class="d-flex justify-content-between mb-4 mt-4">
             <a href="/" class="btn btn-outline-light"><i class="fas fa-home"></i> Home</a>
             <form method="GET" class="d-inline-flex">
@@ -536,7 +575,13 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             </form>
           </div>
           <div class="iframe-container">
-            <iframe id="streaming-iframe" src="" frameborder="0" allowfullscreen></iframe>
+            <div id="iframe-loading" class="iframe-loading-container">
+              <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <iframe id="streaming-iframe" src="" frameborder="0" allowfullscreen style="display:none;"></iframe>
+            <div id="iframe-error" class="iframe-error-message" style="display:none;">Failed to load video. Please try again later.</div>
           </div>
           <div class="d-flex justify-content-between mt-4">
             <button id="prev-episode" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Previous Episode</button>
@@ -618,49 +663,79 @@ app.get('/anime/:animeId/:episode?', async (req, res) => {
             const animeDetail = await fetchAnimeDetail(animeId);
             const episodeList = animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-")) || [];
 
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const errorMessage = document.getElementById('error-message');
+            const iframe = document.getElementById('streaming-iframe');
+            const iframeLoading = document.getElementById('iframe-loading');
+            const iframeError = document.getElementById('iframe-error');
+            loadingSpinner.style.display = 'flex';
+            iframeLoading.style.display = 'flex';
+            iframe.style.display = 'none';
+            iframeError.style.display = 'none';
+            errorMessage.innerHTML = '';
+            document.getElementById('anime-detail-container').innerHTML = '';
+
             if (episodeNumber < 1 || episodeNumber > episodeList.length) {
-              alert('Episode not found');
+              errorMessage.textContent = 'Episode not found';
+              loadingSpinner.style.display = 'none';
+              iframeLoading.style.display = 'none';
               return;
             }
 
             const selectedEpisode = episodeList[episodeList.length - episodeNumber];
-            const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
+            try {
+              const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
 
-            const serverOptions = [];
-            const mirrors = ['mirror_embed1', 'mirror_embed2', 'mirror_embed3'];
+              const serverOptions = [];
+              const mirrors = ['mirror_embed1', 'mirror_embed2', 'mirror_embed3'];
 
-            mirrors.forEach(mirrorKey => {
-              const mirrorData = episodeData[mirrorKey];
-              if (mirrorData && mirrorData.straming.length > 0) {
-                mirrorData.straming.forEach(server => {
-                  serverOptions.push({
-                    name: \`\${server.driver.trim()} - \${mirrorData.quality}\`,
-                    link: server.link
+              mirrors.forEach(mirrorKey => {
+                const mirrorData = episodeData[mirrorKey];
+                if (mirrorData && mirrorData.straming.length > 0) {
+                  mirrorData.straming.forEach(server => {
+                    serverOptions.push({
+                      name: \`\${server.driver.trim()} - \${mirrorData.quality}\`,
+                      link: server.link
+                    });
                   });
-                });
+                }
+              });
+
+              populateAnimeDetail(animeDetail, episodeData, serverOptions);
+              populateEpisodeList(episodeList, selectedEpisode);
+
+              let streamingUrl = episodeData.streamLink;
+              const defaultMirror = episodeData.mirror_embed3;
+              if (defaultMirror && defaultMirror.straming.length > 0) {
+                const mentah = defaultMirror.straming[0].link;
+                const responseMentah = await fetch(\`\${basenya}\${mentah}\`);
+                const mentahData = await responseMentah.json();
+                streamingUrl = mentahData.streaming_url || streamingUrl;
               }
-            });
 
-            populateAnimeDetail(animeDetail, episodeData, serverOptions);
-            populateEpisodeList(episodeList, selectedEpisode);
+              const selectedServer = serverOptions.find(server => server.name === document.getElementById('server-select').value);
+              if (selectedServer) {
+                const streamResponse = await fetch(\`\${basenya}\${selectedServer.link}\`);
+                const streamData = await streamResponse.json();
+                streamingUrl = streamData.streaming_url || streamingUrl;
+              }
 
-            let streamingUrl = episodeData.streamLink;
-            const defaultMirror = episodeData.mirror_embed3;
-            if (defaultMirror && defaultMirror.straming.length > 0) {
-            const mentah = defaultMirror.straming[0].link;
-            const responseMentah = await fetch(\`\${basenya}\${mentah}\`);
-            const mentahData = await responseMentah.json();
-            streamingUrl = mentahData.streaming_url || streamingUrl;
+              iframe.src = streamingUrl;
+              iframe.onload = () => {
+                iframeLoading.style.display = 'none';
+                iframe.style.display = 'block';
+              };
+              iframe.onerror = () => {
+                iframeLoading.style.display = 'none';
+                iframeError.style.display = 'block';
+              };
+            } catch (error) {
+              errorMessage.textContent = 'Failed to load episode data. Please try again later.';
+              iframeLoading.style.display = 'none';
+              iframeError.style.display = 'block';
+            } finally {
+              loadingSpinner.style.display = 'none';
             }
-
-            const selectedServer = serverOptions.find(server => server.name === document.getElementById('server-select').value);
-            if (selectedServer) {
-              const streamResponse = await fetch(\`\${basenya}\${selectedServer.link}\`);
-              const streamData = await streamResponse.json();
-              streamingUrl = streamData.streaming_url || streamingUrl;
-            }
-
-            document.getElementById('streaming-iframe').src = streamingUrl;
           }
 
           document.getElementById('server-select').addEventListener('change', () => loadEpisode(currentEpisodeNumber));
