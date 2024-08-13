@@ -80,19 +80,18 @@ app.get('/', async (req, res) => {
                   padding: 0 10px;
               }
               .anime-thumbnail { 
-                  max-height: 200px; 
+                  max-height: 180px; 
                   border-radius: 10px; 
                   object-fit: cover;
               }
               .card {
                   border: 1px solid #333;
                   background-color: #1e1e1e;
-                  height: 100%;
                   display: flex;
                   flex-direction: column;
               }
               .card-title {
-                  font-size: 1.1rem;
+                  font-size: 1rem;
                   font-weight: 600;
                   color: #ffbf00;
                   white-space: nowrap;
@@ -100,15 +99,15 @@ app.get('/', async (req, res) => {
                   text-overflow: ellipsis;
               }
               .card-text {
-                  font-size: 0.85rem;
+                  font-size: 0.8rem;
                   color: #bbb;
               }
               .btn-watch {
                   background-color: #4caf50;
                   border: none;
                   border-radius: 5px;
-                  padding: 8px 16px;
-                  font-size: 0.85rem;
+                  padding: 6px 12px;
+                  font-size: 0.8rem;
                   color: #fff;
                   margin-top: auto;
               }
@@ -119,8 +118,8 @@ app.get('/', async (req, res) => {
                   background-color: #ff5722;
                   border: none;
                   border-radius: 5px;
-                  padding: 8px 16px;
-                  font-size: 0.85rem;
+                  padding: 6px 12px;
+                  font-size: 0.8rem;
                   color: #fff;
               }
               .btn-save:hover {
@@ -191,6 +190,27 @@ app.get('/', async (req, res) => {
                   color: #ff0000;
                   text-align: center;
                   margin-top: 20px;
+              }
+
+              /* Media Queries */
+              @media (min-width: 576px) {
+                  .anime-thumbnail { 
+                      max-height: 150px; 
+                  }
+              }
+              @media (min-width: 768px) {
+                  .anime-thumbnail { 
+                      max-height: 180px; 
+                  }
+                  .col-md-4 {
+                      flex: 0 0 auto;
+                      width: 33.333333%;
+                  }
+              }
+              @media (min-width: 992px) {
+                  .anime-thumbnail { 
+                      max-height: 200px; 
+                  }
               }
           </style>
       </head>
@@ -337,6 +357,7 @@ app.get('/', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 app.post('/save/:animeId', (req, res) => {
   const animeId = req.params.animeId;
