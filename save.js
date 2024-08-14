@@ -99,12 +99,13 @@ pakpur.get('/save', async (req, res) => {
     </head>
     <body>
       <div class="container mt-5">
-        <nav class="navbar navbar-dark bg-dark mb-4">
+        <nav class="navbar navbar-dark bg-dark mb-3">
           <div class="container-fluid">
             <a class="navbar-brand" href="/">Home</a>
             <div class="d-flex">
               <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
             </div>
+              <a class="nav-link" href="/search"><i class="fas fa-search"></i> Search</a>
           </div>
         </nav>
      <script type="text/javascript">
