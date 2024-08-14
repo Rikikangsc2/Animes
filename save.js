@@ -1,5 +1,6 @@
 const express = require('express');
 const pakpur = express.Router();
+const axios = require('axios');
 
 async function fetchAnimeDetail(endpoint) {
   try {
