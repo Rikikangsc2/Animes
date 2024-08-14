@@ -4,7 +4,7 @@ const axios = require('axios');
 
 async function fetchAnimeDetail(endpoint) {
   try {
-    const response = await axios.get(`${basenya}/api/v1/detail/${endpoint}`);
+    const response = await axios.get(`https://api-otakudesu-livid.vercel.app/api/v1/detail/${endpoint}`);
     const animeDetail = response.data || {};
 
     animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode =>
