@@ -1,0 +1,276 @@
+
+
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
+     <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
+     <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
+     <meta name="google-adsense-account" content="ca-pub-5220496608138780">
+     <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+     <style>
+       body { background-color: #121212; color: #e0e0e0; }
+       .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
+       .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+       .anime-detail { display: flex; flex-wrap: wrap; gap: 20px; }
+       .anime-thumb img { max-width: 100%; border-radius: 8px; }
+       .anime-info { flex-grow: 1; }
+       .nav-link {
+           color: #ffffff;
+       }
+       .nav-link:hover {
+           color: #ffbf00;
+       }
+       .spinner-border {
+           width: 3rem;
+           height: 3rem;
+           border-width: 0.3rem;
+       }
+       .loading-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.8);
+           z-index: 1000;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+       }
+       .error-message {
+           color: #ff0000;
+           text-align: center;
+           margin-top: 20px;
+       }
+     </style>
+   </head>
+   <body>
+     <div id="loading-overlay" class="loading-overlay">
+       <div class="spinner-border text-light" role="status">
+           <span class="visually-hidden">Loading...</span>
+       </div>
+     </div>
+
+  <script type="text/javascript">
+    atOptions = {
+      'key' : 'dd8ebba365a2d1ae7ca5e92744e27e1f',
+      'format' : 'iframe',
+      'height' : 250,
+      'width' : 300,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="//www.topcreativeformat.com/dd8ebba365a2d1ae7ca5e92744e27e1f/invoke.js"></script>
+</div>
+
+     <div class="container mt-5">
+       <nav class="navbar navbar-dark bg-dark mb-3">
+         <div class="container-fluid">
+           <a class="navbar-brand" href="/">Home</a>
+           <div class="d-flex">
+             <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
+           </div>
+             <a class="nav-link" href="/search"><i class="fas fa-search"></i> Search</a>
+         </div>
+       </nav>
+       <div id="anime-detail-container" class="anime-detail mb-4"></div>
+       <div class="error-message" id="error-message"></div>
+       <div class="d-flex justify-content-between mb-4 mt-4">
+         <a href="/" class="btn btn-outline-light"><i class="fas fa-home"></i> Home</a>
+         <form method="GET" class="d-inline-flex">
+           <input type="hidden" name="episode" id="current-episode" value="1">
+           <select name="server" id="server-select" class="form-select me-2">
+             <option selected disabled>Select Server</option>
+           </select>
+           <noscript><button type="submit" class="btn btn-outline-light">Switch</button></noscript>
+         </form>
+       </div>
+       <div class="iframe-container">
+         <iframe id="streaming-iframe" src="" frameborder="0" allowfullscreen style="display:none;"></iframe>
+         <div id="iframe-error" class="error-message" style="display:none;">Failed to load video. Please try again later.</div>
+       </div>
+       <div class="d-flex justify-content-between mt-4">
+         <button id="prev-episode" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Previous Episode</button>
+         <button id="next-episode" class="btn btn-outline-light">Next Episode <i class="fas fa-arrow-right"></i></button>
+       </div>
+       <div class="mt-4">
+         <h2>List Episode</h2>
+         <div id="episode-list" class="list-group"></div>
+       </div>
+       <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
+       <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
+     </div>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+     <script>
+       const basenya = "https://api-otakudesu-livid.vercel.app";
+       const animeId = '<%= animeId %>'; 
+       let currentEpisodeNumber = parseInt(localStorage.getItem(`episode_${animeId}`) || "1");
+       let selectedServer = null; // To store the selected server
+
+       async function fetchAnimeDetail(endpoint) {
+         try {
+           const response = await fetch(`${basenya}/api/v1/detail/${endpoint}`);
+           return await response.json();
+         } catch (error) {
+           console.error('Error fetching anime detail:', error.message);
+           return {};
+         }
+       }
+
+       async function fetchEpisodeStream(endpoint) {
+         try {
+           const response = await fetch(`${basenya}/api/v1/episode/${endpoint}`);
+           return await response.json();
+         } catch (error) {
+           console.error('Error fetching episode stream:', error.message);
+           return {};
+         }
+       }
+
+       function populateAnimeDetail(animeDetail, episodeData, serverOptions) {
+         const animeDetailContainer = document.getElementById('anime-detail-container');
+         animeDetailContainer.innerHTML = `
+           <div class="anime-thumb">
+             <img src="${animeDetail.anime_detail.thumb}" alt="${animeDetail.anime_detail.title}">
+           </div>
+           <div class="anime-info">
+             <h1>${animeDetail.anime_detail.title}</h1>
+             <ul>
+               ${animeDetail.anime_detail.detail.map(detail => `
+                 <li>${detail}</li>
+               `).join('')}
+             </ul>
+             <h3>Synopsis</h3>
+             <p>${animeDetail.anime_detail.sinopsis}</p>
+           </div>
+         `;
+
+         const serverSelect = document.getElementById('server-select');
+         serverSelect.innerHTML = '<option selected disabled>Select Server</option>'; // Clear existing options
+
+         serverOptions.forEach(server => {
+           const option = document.createElement('option');
+           option.value = server.name;
+           option.textContent = server.name;
+           serverSelect.appendChild(option);
+         });
+
+         if (selectedServer) {
+           serverSelect.value = selectedServer; // Reapply the selected server
+         }
+       }
+
+       function populateEpisodeList(episodeList, selectedEpisode) {
+         const episodeListElement = document.getElementById('episode-list');
+         episodeListElement.innerHTML = episodeList.map((episode, index) => `
+           <a href="#" class="list-group-item list-group-item-action ${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}" onclick="loadEpisode(${episodeList.length - index})">
+             ${episode.episode_title}
+           </a>
+         `).join('');
+       }
+
+       async function loadEpisode(episodeNumber) {
+         // Show unified loading screen
+         const loadingOverlay = document.getElementById('loading-overlay');
+         loadingOverlay.style.display = 'flex';
+         document.body.style.overflow = 'hidden'; // Prevent scrolling
+
+         currentEpisodeNumber = episodeNumber;
+         document.getElementById('current-episode').value = episodeNumber;
+         localStorage.setItem(`episode_${animeId}`, episodeNumber); // Save the current episode to localStorage
+
+         const animeDetail = await fetchAnimeDetail(animeId);
+         const episodeList = animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-")) || [];
+
+         const iframe = document.getElementById('streaming-iframe');
+         const iframeError = document.getElementById('iframe-error');
+         iframe.style.display = 'none';
+         iframeError.style.display = 'none';
+         document.getElementById('anime-detail-container').innerHTML = '';
+
+         if (episodeNumber < 1 || episodeNumber > episodeList.length) {
+           document.getElementById('error-message').textContent = 'Episode not found';
+           loadingOverlay.style.display = 'none';
+           document.body.style.overflow = ''; // Enable scrolling
+           return;
+         }
+
+         const selectedEpisode = episodeList[episodeList.length - episodeNumber];
+         try {
+           const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
+
+           const serverOptions = [];
+           const mirrors = ['mirror_embed1', 'mirror_embed2', 'mirror_embed3'];
+
+           mirrors.forEach(mirrorKey => {
+             const mirrorData = episodeData[mirrorKey];
+             if (mirrorData && mirrorData.straming.length > 0) {
+               mirrorData.straming.forEach(server => {
+                 serverOptions.push({
+                   name: `${server.driver.trim()} - ${mirrorData.quality}`,
+                   link: server.link
+                 });
+               });
+             }
+           });
+
+           populateAnimeDetail(animeDetail, episodeData, serverOptions);
+           populateEpisodeList(episodeList, selectedEpisode);
+
+           let streamingUrl = episodeData.streamLink;
+
+           // Use the selected server if available, otherwise use the default
+           const selectedServerOption = serverOptions.find(server => server.name === document.getElementById('server-select').value);
+           if (selectedServerOption) {
+             const streamResponse = await fetch(`${basenya}${selectedServerOption.link}`);
+             const streamData = await streamResponse.json();
+             streamingUrl = streamData.streaming_url || streamingUrl;
+           }
+
+           iframe.src = streamingUrl;
+           iframe.onload = () => {
+             iframe.style.display = 'block';
+             loadingOverlay.style.display = 'none';
+             document.body.style.overflow = ''; // Enable scrolling
+           };
+           iframe.onerror = () => {
+             iframeError.style.display = 'block';
+             loadingOverlay.style.display = 'none';
+             document.body.style.overflow = ''; // Enable scrolling
+           };
+
+           // Update button states based on episode number
+           updateEpisodeButtons(episodeList.length);
+         } catch (error) {
+           document.getElementById('error-message').textContent = 'Failed to load episode data. Please try again later.';
+           loadingOverlay.style.display = 'none';
+           iframeError.style.display = 'block';
+           document.body.style.overflow = ''; // Enable scrolling
+         }
+       }
+
+       function updateEpisodeButtons(totalEpisodes) {
+         const prevButton = document.getElementById('prev-episode');
+         const nextButton = document.getElementById('next-episode');
+
+         prevButton.disabled = currentEpisodeNumber <= 1;
+         nextButton.disabled = currentEpisodeNumber >= totalEpisodes;
+       }
+
+       document.getElementById('server-select').addEventListener('change', (e) => {
+         selectedServer = e.target.value; // Store the selected server
+         loadEpisode(currentEpisodeNumber);
+       });
+       document.getElementById('prev-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber - 1));
+       document.getElementById('next-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber + 1));
+
+       loadEpisode(currentEpisodeNumber);
+     </script>
+   </body>
+   </html>

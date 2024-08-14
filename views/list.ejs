@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>PURNIME TV - Streaming Anime Gratis minim iklan</title>
+          <meta name="description" content="PurNime adalah situs streaming anime dengan koleksi episode terbaru dan populer.">
+          <meta name="keywords" content="PurNime, streaming anime, streaming donghua, nonton anime, nonton donghua, anime online, donghua online">
+          <meta name="google-adsense-account" content="ca-pub-5220496608138780">
+          <link rel="icon" href="https://telegra.ph/file/082d11505390a7ec238ed.jpg" type="image/x-icon">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+          <style>
+              body { 
+                  background-color: #121212; 
+                  color: #e0e0e0; 
+                  font-family: 'Arial', sans-serif;
+                  margin: 0;
+                  padding: 0;
+              }
+              .container {
+                  max-width: 100%;
+                  padding: 0 10px;
+              }
+              .anime-thumbnail { 
+                  max-height: 180px; 
+                  border-radius: 10px; 
+                  object-fit: cover;
+              }
+              .card {
+                  border: 1px solid #333;
+                  background-color: #1e1e1e;
+                  display: flex;
+                  flex-direction: column;
+              }
+              .card-title {
+                  font-size: 1rem;
+                  font-weight: 600;
+                  color: #ffbf00;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+              }
+              .card-text {
+                  font-size: 0.8rem;
+                  color: #bbb;
+              }
+              .btn-watch {
+                  background-color: #4caf50;
+                  border: none;
+                  border-radius: 5px;
+                  padding: 6px 12px;
+                  font-size: 0.8rem;
+                  color: #fff;
+                  margin-top: auto;
+              }
+              .btn-watch:hover {
+                  background-color: #43a047;
+              }
+              .btn-save {
+                  background-color: #ff5722;
+                  border: none;
+                  border-radius: 5px;
+                  padding: 6px 12px;
+                  font-size: 0.8rem;
+                  color: #fff;
+              }
+              .btn-save:hover {
+                  background-color: #e64a19;
+              }
+              .pagination {
+                  flex-wrap: wrap;
+              }
+              .page-link {
+                  color: #fff;
+                  background-color: #343a40;
+                  border-color: #454d55;
+              }
+              .page-item.active .page-link {
+                  background-color: #007bff;
+                  border-color: #007bff;
+              }
+              .page-item.disabled .page-link {
+                  color: #6c757d;
+                  background-color: #343a40;
+                  border-color: #454d55;
+              }
+              .nav-link {
+                  color: #ffffff;
+              }
+              .nav-link:hover {
+                  color: #ffbf00;
+              }
+              .ad-container {
+                  margin-top: 20px;
+                  display: flex;
+                  justify-content: center;
+                  overflow: hidden;
+                  max-height: 250px;
+              }
+              .ad-container iframe {
+                  max-width: 100%;
+                  height: auto;
+                  object-fit: contain;
+              }
+              .footer-ad-container {
+                  display: flex;
+                  justify-content: center;
+                  margin-top: 10px;
+                  padding: 10px;
+                  background-color: #1e1e1e;
+                  border: 1px solid #333;
+                  border-radius: 10px;
+              }
+              .footer-ad-container iframe {
+                  width: 300px;
+                  height: 50px;
+                  object-fit: contain;
+              }
+              /* Loading Spinner Styles */
+              .spinner-border {
+                  width: 3rem;
+                  height: 3rem;
+                  border-width: 0.3rem;
+              }
+              .loading-container {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 200px;
+              }
+              .error-message {
+                  color: #ff0000;
+                  text-align: center;
+                  margin-top: 20px;
+              }
+
+              /* Media Queries */
+              @media (min-width: 576px) {
+                  .anime-thumbnail { 
+                      max-height: 150px; 
+                  }
+              }
+              @media (min-width: 768px) {
+                  .anime-thumbnail { 
+                      max-height: 180px; 
+                  }
+                  .col-md-4 {
+                      flex: 0 0 auto;
+                      width: 33.333333%;
+                  }
+              }
+              @media (min-width: 992px) {
+                  .anime-thumbnail { 
+                      max-height: 200px; 
+                  }
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container mt-4">
+              <h1 class="text-center mb-4">PUR-NIME TV</h1>
+
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'dd8ebba365a2d1ae7ca5e92744e27e1f',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.topcreativeformat.com/dd8ebba365a2d1ae7ca5e92744e27e1f/invoke.js"></script>
+    </div>
+
+              <nav class="navbar navbar-dark bg-dark mb-3">
+                <div class="container-fluid">
+                  <a class="navbar-brand" href="/">Home</a>
+                  <div class="d-flex">
+                    <a class="nav-link" href="/save"><i class="fas fa-bookmark"></i> Saved Anime</a>
+                  </div>
+                    <a class="nav-link" href="/search"><i class="fas fa-search"></i> Search</a>
+                </div>
+              </nav>
+                  
+                </div>
+              </nav>
+              <div id="loading-spinner" class="loading-container">
+                  <div class="spinner-border text-light" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                  </div>
+              </div>
+              <div class="row row-cols-1 row-cols-md-3 g-4" id="anime-list"></div>
+              <div class="error-message" id="error-message"></div>
+              <div class="d-flex justify-content-between mt-3">
+                  <button id="prev-page" class="btn btn-outline-light"><i class="fas fa-arrow-left"></i> Back Page</button>
+                  <button id="next-page" class="btn btn-outline-light">Next Page <i class="fas fa-arrow-right"></i></button>
+              </div>
+              <div class="ad-container">
+                <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
+                <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
+              </div>
+              <div class="footer-ad-container">
+                <script async="async" data-cfasync="false" src="//pl23995169.highratecpm.com/b6c17a23ebf18433686f5349b38b8a9d/invoke.js"></script>
+                <div id="container-b6c17a23ebf18433686f5349b38b8a9d"></div>
+              </div>
+          </div>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+          <script>
+            const basenya = "https://api-otakudesu-livid.vercel.app";
+            let currentPage = 1;
+            const pageSize = 100;
+
+            async function fetchAnimeData(page) {
+              try {
+                const response = await fetch(`${basenya}/api/v1/ongoing/${page}`);
+                const respon = await fetch(`${basenya}/api/v1/completed/${page}`);
+                const data2 = await respon.json();
+                const data = await response.json();
+                data.ongoing = [...data.ongoing,
+... data2.completed]
+                return data.ongoing || [];
+              } catch (error) {
+                console.error('Error fetching data:', error.message);
+                return [];
+              }
+            }
+
+            async function fetchAnimeDetail(endpoint) {
+              try {
+                const response = await fetch(`${basenya}/api/v1/detail/${endpoint}`);
+                const animeDetail = await response.json();
+                animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-"));
+                return animeDetail || {};
+              } catch (error) {
+                console.error('Error fetching anime detail:', error.message);
+                return {};
+              }
+            }
+
+            function renderAnime(animeData) {
+              const animeList = document.getElementById('anime-list');
+              animeList.innerHTML = animeData.map(anime => `
+                <div class="col">
+                    <div class="card h-100 text-white">
+                        <a href="/anime/${anime.endpoint}" style="text-decoration: none;"> 
+                            <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">${anime.anime_detail.title}</h5>
+                                <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
+                                <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
+                                <p class="card-text">${anime.anime_detail.detail[10]}</p>
+                            </div>
+                        </a>
+                        <button class="btn btn-save" onclick="event.preventDefault(); saveAnime('${anime.endpoint}')">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                    </div>
+                </div>
+              `).join('');
+            }
+
+            async function loadAnimePage(page) {
+              currentPage = page;
+              const animeList = document.getElementById('anime-list');
+              const errorMessage = document.getElementById('error-message');
+              const loadingSpinner = document.getElementById('loading-spinner');
+
+              // Show loading spinner and hide previous content
+              loadingSpinner.style.display = 'flex';
+              animeList.innerHTML = '';
+              errorMessage.innerHTML = '';
+
+              try {
+                const ongoingAnime = await fetchAnimeData(page);
+                const animeData = await Promise.all(ongoingAnime.map(anime => fetchAnimeDetail(anime.endpoint)));
+                renderAnime(animeData);
+              } catch (error) {
+                errorMessage.textContent = 'Failed to load anime. Please try again later.';
+              } finally {
+                // Hide loading spinner
+                loadingSpinner.style.display = 'none';
+              }
+            }
+
+            document.getElementById('prev-page').addEventListener('click', () => {
+              if (currentPage > 1) loadAnimePage(currentPage - 1);
+            });
+
+            document.getElementById('next-page').addEventListener('click', () => {
+              loadAnimePage(currentPage + 1);
+            });
+
+            loadAnimePage(currentPage);
+
+            function saveAnime(animeId) {
+              fetch('/save/' + animeId, { method: 'POST' })
+                .then(response => {
+                  if (response.ok) {
+                    alert('Udah di save bro silahkan cek di save');
+                  }
+                })
+                .catch(error => console.error('Error saving anime:', error));
+            }
+          </script>
+      </body>
+      </html>
