@@ -76,69 +76,8 @@
     <button class="btn btn-primary" onclick="searchAnime()">Search</button>
     <div id="results" class="row row-cols-1 row-cols-md-3 g-4 mt-4"></div>
   </div>
-  <script>
-    const basenya = 'https://api-otakudesu-livid.vercel.app';
-
-    async function searchAnime() {
-      const query = document.getElementById('searchQuery').value;
-      try {
-        const response = await fetch(`${basenya}/api/v1/search/${encodeURIComponent(query)}`);
-        const data = await response.json();
-        const searchResults = data.search || [];
-        const animeData = await Promise.all(searchResults.map(anime => fetchAnimeDetail(anime.endpoint)));
-        displayResults(animeData, query);
-      } catch (error) {
-        console.error('Error searching anime:', error.message);
-      }
-    }
-
-    async function fetchAnimeDetail(endpoint) {
-      try {
-        const response = await fetch(`${basenya}/api/v1/detail/${endpoint}`);
-        const animeDetail = await response.json();
-        animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode =>
-          episode.episode_endpoint.includes("episode-")
-        );
-        return animeDetail;
-      } catch (error) {
-        console.error('Error fetching anime detail:', error.message);
-        return {};
-      }
-    }
-
-    function displayResults(animeData, searchQuery) {
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = `
-        <h2 class="text-center">Hasil Pencarian: ${searchQuery}</h2>
-        ${animeData.map(anime => `
-          <div class="col">
-            <div class="card h-100 text-white">
-              <a href="/anime/${anime.endpoint}" style="text-decoration: none;">
-                <img src="${anime.anime_detail.thumb}" class="card-img-top anime-thumbnail" alt="${anime.anime_detail.title}">
-                <div class="card-body">
-                  <h5 class="card-title">${anime.anime_detail.title}</h5>
-                  <p class="card-text">${anime.anime_detail.detail[2]} - ${anime.anime_detail.detail[6]}</p>
-                  <p class="card-text">${anime.episode_list[0]?.episode_date || ''}</p>
-                  <p class="card-text">${anime.anime_detail.detail[10]}</p>
-                  <a href="/anime/${anime.endpoint}" class="btn btn-watch"><i class="fas fa-play"></i> Tonton</a>
-                  <button class="btn btn-save" onclick="saveAnime('${anime.endpoint}')"><i class="fas fa-save"></i> Simpan</button>
-                </div>
-              </a>
-            </div>
-          </div>
-        `).join('')}
-      `;
-    }
-
-    function saveAnime(animeId) {
-      fetch('/save/' + animeId, { method: 'POST' })
-        .then(response => {
-          if (response.ok) {
-            alert('Udah di save bro silahkan cek di save');
-          }
-        })
-        .catch(error => console.error('Error saving anime:', error));
-    }
-  </script>
+<script>
+  function _0x4cd4(){const _0x54e04d=['https://api-otakudesu-livid.vercel.app','Error\x20saving\x20anime:','episode_endpoint','309esUhXe','detail','704936pNPqju','thumb','searchQuery','\x22\x20style=\x22text-decoration:\x20none;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22','title','\x0a\x20\x20\x20\x20\x20\x20','POST','2FmPEoy','catch','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20class=\x22text-center\x22>Hasil\x20Pencarian:\x20','18462inDQlV','map','endpoint','filter','error','\x20-\x20','Error\x20fetching\x20anime\x20detail:','505DsUFUZ','innerHTML','then','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22col\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card\x20h-100\x20text-white\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<a\x20href=\x22/anime/','getElementById','168310MhfXuS','309574ChBCXY','Udah\x20di\x20save\x20bro\x20silahkan\x20cek\x20di\x20save','21fxXsqk','episode_date','\x22\x20class=\x22card-img-top\x20anime-thumbnail\x22\x20alt=\x22','36ggsDfo','Error\x20searching\x20anime:','includes','11DpQEcy','episode_list','episode-','9049703EXGtFz','</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<a\x20href=\x22/anime/','28BGkFRb','message','search','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card-body\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h5\x20class=\x22card-title\x22>','\x22\x20class=\x22btn\x20btn-watch\x22><i\x20class=\x22fas\x20fa-play\x22></i>\x20Tonton</a>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22btn\x20btn-save\x22\x20onclick=\x22saveAnime(\x27','value','\x27)\x22><i\x20class=\x22fas\x20fa-save\x22></i>\x20Simpan</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</a>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','5804mQMkcW','</h5>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22card-text\x22>','join','/api/v1/detail/','/save/','anime_detail','json','4445832HOette'];_0x4cd4=function(){return _0x54e04d;};return _0x4cd4();}const _0x17b4dc=_0x21ff;(function(_0x150462,_0x338aef){const _0x3df191=_0x21ff,_0x24c453=_0x150462();while(!![]){try{const _0x3b4775=-parseInt(_0x3df191(0x199))/0x1*(parseInt(_0x3df191(0x189))/0x2)+parseInt(_0x3df191(0x180))/0x3*(parseInt(_0x3df191(0x1ad))/0x4)+-parseInt(_0x3df191(0x193))/0x5*(parseInt(_0x3df191(0x18c))/0x6)+-parseInt(_0x3df191(0x19b))/0x7*(parseInt(_0x3df191(0x182))/0x8)+parseInt(_0x3df191(0x19e))/0x9*(-parseInt(_0x3df191(0x198))/0xa)+-parseInt(_0x3df191(0x1a1))/0xb*(parseInt(_0x3df191(0x17c))/0xc)+parseInt(_0x3df191(0x1a4))/0xd*(parseInt(_0x3df191(0x1a6))/0xe);if(_0x3b4775===_0x338aef)break;else _0x24c453['push'](_0x24c453['shift']());}catch(_0x7bd0b3){_0x24c453['push'](_0x24c453['shift']());}}}(_0x4cd4,0x35843));const basenya=_0x17b4dc(0x17d);async function searchAnime(){const _0x17c31c=_0x17b4dc,_0x14c022=document[_0x17c31c(0x197)](_0x17c31c(0x184))[_0x17c31c(0x1ab)];try{const _0x3bf339=await fetch(basenya+'/api/v1/search/'+encodeURIComponent(_0x14c022)),_0x5f301c=await _0x3bf339[_0x17c31c(0x17b)](),_0x459989=_0x5f301c[_0x17c31c(0x1a8)]||[],_0x3e6e7b=await Promise['all'](_0x459989[_0x17c31c(0x18d)](_0x5d9cbc=>fetchAnimeDetail(_0x5d9cbc[_0x17c31c(0x18e)])));displayResults(_0x3e6e7b,_0x14c022);}catch(_0x3c808a){console['error'](_0x17c31c(0x19f),_0x3c808a[_0x17c31c(0x1a7)]);}}async function fetchAnimeDetail(_0x420d79){const _0x413dfa=_0x17b4dc;try{const _0x134db9=await fetch(basenya+_0x413dfa(0x178)+_0x420d79),_0x2a35e1=await _0x134db9[_0x413dfa(0x17b)]();return _0x2a35e1[_0x413dfa(0x1a2)]=(_0x2a35e1[_0x413dfa(0x1a2)]||[])[_0x413dfa(0x18f)](_0x29d2d1=>_0x29d2d1[_0x413dfa(0x17f)][_0x413dfa(0x1a0)](_0x413dfa(0x1a3))),_0x2a35e1;}catch(_0x2e0e7a){return console[_0x413dfa(0x190)](_0x413dfa(0x192),_0x2e0e7a['message']),{};}}function _0x21ff(_0x33b774,_0x4805a7){const _0x4cd4ca=_0x4cd4();return _0x21ff=function(_0x21ff38,_0x8dfa0b){_0x21ff38=_0x21ff38-0x177;let _0x47f671=_0x4cd4ca[_0x21ff38];return _0x47f671;},_0x21ff(_0x33b774,_0x4805a7);}function displayResults(_0x4176c3,_0x140122){const _0x100f2c=_0x17b4dc,_0x2f99b7=document[_0x100f2c(0x197)]('results');_0x2f99b7[_0x100f2c(0x194)]=_0x100f2c(0x18b)+_0x140122+'</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20'+_0x4176c3[_0x100f2c(0x18d)](_0x28374c=>_0x100f2c(0x196)+_0x28374c['endpoint']+_0x100f2c(0x185)+_0x28374c[_0x100f2c(0x17a)][_0x100f2c(0x183)]+_0x100f2c(0x19d)+_0x28374c[_0x100f2c(0x17a)][_0x100f2c(0x186)]+_0x100f2c(0x1a9)+_0x28374c[_0x100f2c(0x17a)][_0x100f2c(0x186)]+_0x100f2c(0x1ae)+_0x28374c[_0x100f2c(0x17a)][_0x100f2c(0x181)][0x2]+_0x100f2c(0x191)+_0x28374c[_0x100f2c(0x17a)][_0x100f2c(0x181)][0x6]+'</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22card-text\x22>'+(_0x28374c[_0x100f2c(0x1a2)][0x0]?.[_0x100f2c(0x19c)]||'')+'</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22card-text\x22>'+_0x28374c[_0x100f2c(0x17a)][_0x100f2c(0x181)][0xa]+_0x100f2c(0x1a5)+_0x28374c[_0x100f2c(0x18e)]+_0x100f2c(0x1aa)+_0x28374c[_0x100f2c(0x18e)]+_0x100f2c(0x1ac))[_0x100f2c(0x177)]('')+_0x100f2c(0x187);}function saveAnime(_0x596156){const _0x220be1=_0x17b4dc;fetch(_0x220be1(0x179)+_0x596156,{'method':_0x220be1(0x188)})[_0x220be1(0x195)](_0x21c4a3=>{const _0x3198eb=_0x220be1;_0x21c4a3['ok']&&alert(_0x3198eb(0x19a));})[_0x220be1(0x18a)](_0x129a50=>console['error'](_0x220be1(0x17e),_0x129a50));}
+</script>
 </body>
 </html>
