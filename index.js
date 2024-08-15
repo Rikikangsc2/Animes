@@ -13,10 +13,33 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 //Router
-app.get('/manifest.json', (req, res) =>{
-  res.setHeader('Content-Type', 'application/json');
-  res.render("manifestJSON");
+app.get('/manifest.json', (req, res) => {
+  res.json({
+    name: "PURNIME TV",
+    short_name: "PURNIME",
+    description: "Nikmati streaming terbaik di PURNIME TV",
+    start_url: "/",
+    scope: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: "#2196F3",
+    icons: [
+      {
+        src: "https://telegra.ph/file/082d11505390a7ec238ed.jpg",
+        sizes: "192x192",
+        type: "image/jpeg"
+      },
+      {
+        src: "https://telegra.ph/file/082d11505390a7ec238ed.jpg",
+        sizes: "512x512",
+        type: "image/jpeg"
+      }
+    ],
+    lang: "id",
+    dir: "ltr"
+  });
 });
+
 app.get('/', async (req, res) =>{
   res.render("list")
 });
