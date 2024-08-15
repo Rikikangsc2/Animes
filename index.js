@@ -13,6 +13,10 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 //Router
+app.get('/manifest.json', (req, res) =>{
+  res.setHeader('Content-Type', 'application/json');
+  res.render("manifestJSON");
+});
 app.get('/', async (req, res) =>{
   res.render("list")
 });
