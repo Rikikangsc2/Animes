@@ -1,1 +1,31 @@
-const _0x4f6b8b=_0x24c8;(function(_0x495cc6,_0x3c7ef4){const _0x397776=_0x24c8,_0x2804f6=_0x495cc6();while(!![]){try{const _0x43f444=-parseInt(_0x397776(0x1ee))/0x1+-parseInt(_0x397776(0x1ed))/0x2+parseInt(_0x397776(0x1e3))/0x3+-parseInt(_0x397776(0x1dd))/0x4*(parseInt(_0x397776(0x1d3))/0x5)+-parseInt(_0x397776(0x1e7))/0x6*(-parseInt(_0x397776(0x1d9))/0x7)+parseInt(_0x397776(0x1dc))/0x8+-parseInt(_0x397776(0x1d5))/0x9;if(_0x43f444===_0x3c7ef4)break;else _0x2804f6['push'](_0x2804f6['shift']());}catch(_0x23b945){_0x2804f6['push'](_0x2804f6['shift']());}}}(_0x2f13,0x1e7e9));const express=require(_0x4f6b8b(0x1de)),bodyParser=require(_0x4f6b8b(0x1df)),cookieParser=require('cookie-parser'),path=require('path'),save=require(_0x4f6b8b(0x1ec)),app=express();app[_0x4f6b8b(0x1d4)](bodyParser[_0x4f6b8b(0x1d2)]({'extended':!![]})),app[_0x4f6b8b(0x1d4)](cookieParser()),app[_0x4f6b8b(0x1d4)](express[_0x4f6b8b(0x1eb)](_0x4f6b8b(0x1e9))),app['use']('/',save['pakpur']),app[_0x4f6b8b(0x1d7)](_0x4f6b8b(0x1d0),_0x4f6b8b(0x1e2)),app['set']('views',path[_0x4f6b8b(0x1e1)](__dirname,'views')),app[_0x4f6b8b(0x1e5)]('/',async(_0x5acbde,_0x40d76a)=>{const _0x1bb6a4=_0x4f6b8b;_0x40d76a[_0x1bb6a4(0x1d6)]('list');}),app['get'](_0x4f6b8b(0x1e8),async(_0x1b8316,_0x94f0a2)=>{const _0x73baa2=_0x4f6b8b;_0x94f0a2[_0x73baa2(0x1d6)](_0x73baa2(0x1ea),{'animeId':_0x1b8316[_0x73baa2(0x1d8)][_0x73baa2(0x1db)]});}),app[_0x4f6b8b(0x1e5)](_0x4f6b8b(0x1e6),async(_0x16c9aa,_0x31426b)=>{const _0x42288c=_0x4f6b8b;_0x31426b['render'](_0x42288c(0x1e4));});function _0x24c8(_0x2df80a,_0x4abf87){const _0x2f13ac=_0x2f13();return _0x24c8=function(_0x24c87a,_0x345b47){_0x24c87a=_0x24c87a-0x1d0;let _0x3d17b1=_0x2f13ac[_0x24c87a];return _0x3d17b1;},_0x24c8(_0x2df80a,_0x4abf87);}const PORT=process[_0x4f6b8b(0x1ef)][_0x4f6b8b(0x1d1)]||0xbb8;app[_0x4f6b8b(0x1e0)](PORT,()=>{const _0x1fe637=_0x4f6b8b;console['log'](_0x1fe637(0x1da)+PORT);});function _0x2f13(){const _0x1bc9b1=['get','/search','6RWvxYn','/anime/:animeId','public','play','static','./save','34614dUQDCa','16678PqDAvE','env','view\x20engine','PORT','urlencoded','327770ZUgBLw','use','2959191KziEpO','render','set','params','1252286uUmhKI','Server\x20running\x20on\x20port\x20','animeId','1655096NYjcGv','8FEDKrX','express','body-parser','listen','join','ejs','699036qEMCOZ','search'];_0x2f13=function(){return _0x1bc9b1;};return _0x2f13();}
+const express = require('express');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const path = require('path');
+const save = require('./save');
+
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(express.static('public'));
+app.use("/", save.pakpur)
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+//Router
+app.get('/', async (req, res) =>{
+  res.render("list")
+});
+
+app.get('/anime/:animeId', async (req, res) =>{
+  res.render("play",{animeId:req.params.animeId});
+})
+
+app.get('/search', async (req, res) =>{
+  res.render("search");
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

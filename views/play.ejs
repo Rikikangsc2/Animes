@@ -1,4 +1,6 @@
- <!DOCTYPE html>
+
+
+   <!DOCTYPE html>
    <html lang="en">
    <head>
      <meta charset="UTF-8">
@@ -105,8 +107,170 @@
      </div>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-    <script>
-      const _0x39e77d=_0x3696;(function(_0x7d77b4,_0x32fa57){const _0x2522ec=_0x3696,_0x209e53=_0x7d77b4();while(!![]){try{const _0xe7e959=-parseInt(_0x2522ec(0xcd))/0x1+-parseInt(_0x2522ec(0xea))/0x2*(parseInt(_0x2522ec(0xe8))/0x3)+parseInt(_0x2522ec(0xd5))/0x4*(-parseInt(_0x2522ec(0xd6))/0x5)+parseInt(_0x2522ec(0xc9))/0x6*(-parseInt(_0x2522ec(0xe0))/0x7)+parseInt(_0x2522ec(0xc2))/0x8+parseInt(_0x2522ec(0xba))/0x9+parseInt(_0x2522ec(0xf3))/0xa;if(_0xe7e959===_0x32fa57)break;else _0x209e53['push'](_0x209e53['shift']());}catch(_0x76c7c3){_0x209e53['push'](_0x209e53['shift']());}}}(_0xf7ff,0x8186e));const basenya=_0x39e77d(0xd8),animeId=_0x39e77d(0xbe);let currentEpisodeNumber=parseInt(localStorage[_0x39e77d(0xcc)](_0x39e77d(0xb5)+animeId)||'1'),selectedServer=null;async function fetchAnimeDetail(_0x483699){const _0x304a08=_0x39e77d;try{const _0xb6eec9=await fetch(basenya+_0x304a08(0xe2)+_0x483699);return await _0xb6eec9['json']();}catch(_0x4d4e58){return console[_0x304a08(0xf7)](_0x304a08(0xbf),_0x4d4e58[_0x304a08(0xc8)]),{};}}async function fetchEpisodeStream(_0x1ae52e){const _0x4ce822=_0x39e77d;try{const _0x585713=await fetch(basenya+_0x4ce822(0xd4)+_0x1ae52e);return await _0x585713[_0x4ce822(0xdf)]();}catch(_0x118bbc){return console[_0x4ce822(0xf7)](_0x4ce822(0xeb),_0x118bbc[_0x4ce822(0xc8)]),{};}}function populateAnimeDetail(_0x1f93f1,_0x35de77,_0xcad034){const _0x4364e1=_0x39e77d,_0x1fa6f6=document[_0x4364e1(0xb8)](_0x4364e1(0xf6));_0x1fa6f6[_0x4364e1(0xc0)]=_0x4364e1(0xfe)+_0x1f93f1[_0x4364e1(0xdc)][_0x4364e1(0xcf)]+_0x4364e1(0xc5)+_0x1f93f1['anime_detail']['title']+'\x22>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22anime-info\x22>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h1>'+_0x1f93f1[_0x4364e1(0xdc)]['title']+'</h1>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<ul>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+_0x1f93f1[_0x4364e1(0xdc)]['detail'][_0x4364e1(0xc6)](_0x105a5b=>'\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<li>'+_0x105a5b+_0x4364e1(0xe7))[_0x4364e1(0xc1)]('')+_0x4364e1(0xdd)+_0x1f93f1[_0x4364e1(0xdc)][_0x4364e1(0xf2)]+_0x4364e1(0xd7);const _0xf5ff1b=document['getElementById'](_0x4364e1(0xff));_0xf5ff1b[_0x4364e1(0xc0)]=_0x4364e1(0xe1),_0xcad034[_0x4364e1(0xb7)](_0x2f6437=>{const _0x43bedf=_0x4364e1,_0x52f664=document[_0x43bedf(0xfa)]('option');_0x52f664['value']=_0x2f6437[_0x43bedf(0xd3)],_0x52f664[_0x43bedf(0x101)]=_0x2f6437[_0x43bedf(0xd3)],_0xf5ff1b[_0x43bedf(0xee)](_0x52f664);}),selectedServer&&(_0xf5ff1b[_0x4364e1(0xb4)]=selectedServer);}function _0x3696(_0x5297b5,_0x257eda){const _0xf7ff29=_0xf7ff();return _0x3696=function(_0x369676,_0x31d3cb){_0x369676=_0x369676-0xb2;let _0x53647c=_0xf7ff29[_0x369676];return _0x53647c;},_0x3696(_0x5297b5,_0x257eda);}function populateEpisodeList(_0x5e6bed,_0x434f4e){const _0x97ac54=_0x39e77d,_0x1205fd=document[_0x97ac54(0xb8)](_0x97ac54(0xbc));_0x1205fd[_0x97ac54(0xc0)]=_0x5e6bed[_0x97ac54(0xc6)]((_0x316ac3,_0x1e9883)=>_0x97ac54(0xb9)+(_0x316ac3[_0x97ac54(0xef)]===_0x434f4e['episode_endpoint']?'active':'')+_0x97ac54(0xf9)+(_0x5e6bed['length']-_0x1e9883)+_0x97ac54(0xd9)+_0x316ac3[_0x97ac54(0xfc)]+_0x97ac54(0xd0))[_0x97ac54(0xc1)]('');}async function loadEpisode(_0xfa1ed8){const _0x38f635=_0x39e77d,_0x27b588=document[_0x38f635(0xb8)]('loading-overlay');_0x27b588[_0x38f635(0xca)][_0x38f635(0xb2)]=_0x38f635(0xd1),document['body'][_0x38f635(0xca)]['overflow']=_0x38f635(0xda),currentEpisodeNumber=_0xfa1ed8,document['getElementById'](_0x38f635(0xce))[_0x38f635(0xb4)]=_0xfa1ed8,localStorage['setItem'](_0x38f635(0xb5)+animeId,_0xfa1ed8);const _0x5922a4=await fetchAnimeDetail(animeId),_0x4d84d1=_0x5922a4[_0x38f635(0xf4)]=(_0x5922a4[_0x38f635(0xf4)]||[])[_0x38f635(0xbb)](_0x3d9fe6=>_0x3d9fe6[_0x38f635(0xef)]['includes'](_0x38f635(0xe9)))||[],_0x58c5c2=document[_0x38f635(0xb8)]('streaming-iframe'),_0x5d7e6f=document[_0x38f635(0xb8)]('iframe-error');_0x58c5c2['style']['display']=_0x38f635(0xf1),_0x5d7e6f[_0x38f635(0xca)][_0x38f635(0xb2)]=_0x38f635(0xf1),document[_0x38f635(0xb8)](_0x38f635(0xf6))[_0x38f635(0xc0)]='';if(_0xfa1ed8<0x1||_0xfa1ed8>_0x4d84d1[_0x38f635(0xfb)]){document[_0x38f635(0xb8)](_0x38f635(0xf5))['textContent']='Episode\x20not\x20found',_0x27b588[_0x38f635(0xca)][_0x38f635(0xb2)]=_0x38f635(0xf1),document['body']['style']['overflow']='';return;}const _0x5041c6=_0x4d84d1[_0x4d84d1['length']-_0xfa1ed8];try{const _0x4672ad=await fetchEpisodeStream(_0x5041c6[_0x38f635(0xef)]),_0x28a4ca=[],_0x5ecafa=['mirror_embed1',_0x38f635(0xbd),_0x38f635(0xec)];_0x5ecafa['forEach'](_0x558177=>{const _0x1f8720=_0x38f635,_0x58dee0=_0x4672ad[_0x558177];_0x58dee0&&_0x58dee0['straming'][_0x1f8720(0xfb)]>0x0&&_0x58dee0[_0x1f8720(0xe3)][_0x1f8720(0xb7)](_0x309981=>{const _0x2f013a=_0x1f8720;_0x28a4ca[_0x2f013a(0xde)]({'name':_0x309981['driver'][_0x2f013a(0xb6)]()+'\x20-\x20'+_0x58dee0['quality'],'link':_0x309981['link']});});}),populateAnimeDetail(_0x5922a4,_0x4672ad,_0x28a4ca),populateEpisodeList(_0x4d84d1,_0x5041c6);let _0x4be0a8=_0x4672ad[_0x38f635(0x100)];const _0x25787a=_0x28a4ca[_0x38f635(0xc4)](_0x5a43d5=>_0x5a43d5[_0x38f635(0xd3)]===document[_0x38f635(0xb8)](_0x38f635(0xff))[_0x38f635(0xb4)]);if(_0x25787a){const _0x498469=await fetch(''+basenya+_0x25787a[_0x38f635(0xcb)]),_0x2bf5d5=await _0x498469['json']();_0x4be0a8=_0x2bf5d5[_0x38f635(0xe4)]||_0x4be0a8;}_0x58c5c2[_0x38f635(0xb3)]=_0x4be0a8,_0x58c5c2[_0x38f635(0xe5)]=()=>{const _0xfe6d8b=_0x38f635;_0x58c5c2[_0xfe6d8b(0xca)][_0xfe6d8b(0xb2)]=_0xfe6d8b(0xc3),_0x27b588[_0xfe6d8b(0xca)][_0xfe6d8b(0xb2)]=_0xfe6d8b(0xf1),document[_0xfe6d8b(0xd2)][_0xfe6d8b(0xca)][_0xfe6d8b(0xe6)]='';},_0x58c5c2[_0x38f635(0xf0)]=()=>{const _0x3125b0=_0x38f635;_0x5d7e6f['style']['display']=_0x3125b0(0xc3),_0x27b588['style'][_0x3125b0(0xb2)]=_0x3125b0(0xf1),document[_0x3125b0(0xd2)]['style'][_0x3125b0(0xe6)]='';},updateEpisodeButtons(_0x4d84d1['length']);}catch(_0x4d9292){document['getElementById'](_0x38f635(0xf5))[_0x38f635(0x101)]='Failed\x20to\x20load\x20episode\x20data.\x20Please\x20try\x20again\x20later.',_0x27b588[_0x38f635(0xca)][_0x38f635(0xb2)]=_0x38f635(0xf1),_0x5d7e6f[_0x38f635(0xca)][_0x38f635(0xb2)]=_0x38f635(0xc3),document[_0x38f635(0xd2)][_0x38f635(0xca)][_0x38f635(0xe6)]='';}}function updateEpisodeButtons(_0x47d931){const _0x564076=_0x39e77d,_0x39ea6c=document['getElementById'](_0x564076(0xfd)),_0x489841=document['getElementById'](_0x564076(0xc7));_0x39ea6c['disabled']=currentEpisodeNumber<=0x1,_0x489841['disabled']=currentEpisodeNumber>=_0x47d931;}function _0xf7ff(){const _0x44cdd9=['797506NwUDjJ','current-episode','thumb','\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</a>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20','flex','body','name','/api/v1/episode/','3416348brgndA','5jPPhGp','</p>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20','https://api-otakudesu-livid.vercel.app',')\x22>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','hidden','change','anime_detail','\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</ul>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3>Synopsis</h3>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p>','push','json','322Qmqzhm','<option\x20selected\x20disabled>Select\x20Server</option>','/api/v1/detail/','straming','streaming_url','onload','overflow','</li>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','57KuqXCI','episode-','96920MWGYCD','Error\x20fetching\x20episode\x20stream:','mirror_embed3','target','appendChild','episode_endpoint','onerror','none','sinopsis','20034350hXbpOW','episode_list','error-message','anime-detail-container','error','click','\x22\x20onclick=\x22loadEpisode(','createElement','length','episode_title','prev-episode','\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22anime-thumb\x22>\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22','server-select','streamLink','textContent','display','src','value','episode_','trim','forEach','getElementById','\x0a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<a\x20href=\x22#\x22\x20class=\x22list-group-item\x20list-group-item-action\x20','8473365traplF','filter','episode-list','mirror_embed2','<%=animeId%>','Error\x20fetching\x20anime\x20detail:','innerHTML','join','4007816SjDqdT','block','find','\x22\x20alt=\x22','map','next-episode','message','44742otUAul','style','link','getItem'];_0xf7ff=function(){return _0x44cdd9;};return _0xf7ff();}document[_0x39e77d(0xb8)](_0x39e77d(0xff))['addEventListener'](_0x39e77d(0xdb),_0x5ee076=>{const _0x5f4e83=_0x39e77d;selectedServer=_0x5ee076[_0x5f4e83(0xed)]['value'],loadEpisode(currentEpisodeNumber);}),document[_0x39e77d(0xb8)](_0x39e77d(0xfd))['addEventListener']('click',()=>loadEpisode(currentEpisodeNumber-0x1)),document[_0x39e77d(0xb8)]('next-episode')['addEventListener'](_0x39e77d(0xf8),()=>loadEpisode(currentEpisodeNumber+0x1)),loadEpisode(currentEpisodeNumber);
-    </script>
+     <script>
+       const basenya = "https://api-otakudesu-livid.vercel.app";
+       const animeId = '<%= animeId %>'; 
+       let currentEpisodeNumber = parseInt(localStorage.getItem(`episode_${animeId}`) || "1");
+       let selectedServer = null; // To store the selected server
+
+       async function fetchAnimeDetail(endpoint) {
+         try {
+           const response = await fetch(`${basenya}/api/v1/detail/${endpoint}`);
+           return await response.json();
+         } catch (error) {
+           console.error('Error fetching anime detail:', error.message);
+           return {};
+         }
+       }
+
+       async function fetchEpisodeStream(endpoint) {
+         try {
+           const response = await fetch(`${basenya}/api/v1/episode/${endpoint}`);
+           return await response.json();
+         } catch (error) {
+           console.error('Error fetching episode stream:', error.message);
+           return {};
+         }
+       }
+
+       function populateAnimeDetail(animeDetail, episodeData, serverOptions) {
+         const animeDetailContainer = document.getElementById('anime-detail-container');
+         animeDetailContainer.innerHTML = `
+           <div class="anime-thumb">
+             <img src="${animeDetail.anime_detail.thumb}" alt="${animeDetail.anime_detail.title}">
+           </div>
+           <div class="anime-info">
+             <h1>${animeDetail.anime_detail.title}</h1>
+             <ul>
+               ${animeDetail.anime_detail.detail.map(detail => `
+                 <li>${detail}</li>
+               `).join('')}
+             </ul>
+             <h3>Synopsis</h3>
+             <p>${animeDetail.anime_detail.sinopsis}</p>
+           </div>
+         `;
+
+         const serverSelect = document.getElementById('server-select');
+         serverSelect.innerHTML = '<option selected disabled>Select Server</option>'; // Clear existing options
+
+         serverOptions.forEach(server => {
+           const option = document.createElement('option');
+           option.value = server.name;
+           option.textContent = server.name;
+           serverSelect.appendChild(option);
+         });
+
+         if (selectedServer) {
+           serverSelect.value = selectedServer; // Reapply the selected server
+         }
+       }
+
+       function populateEpisodeList(episodeList, selectedEpisode) {
+         const episodeListElement = document.getElementById('episode-list');
+         episodeListElement.innerHTML = episodeList.map((episode, index) => `
+           <a href="#" class="list-group-item list-group-item-action ${episode.episode_endpoint === selectedEpisode.episode_endpoint ? 'active' : ''}" onclick="loadEpisode(${episodeList.length - index})">
+             ${episode.episode_title}
+           </a>
+         `).join('');
+       }
+
+       async function loadEpisode(episodeNumber) {
+         // Show unified loading screen
+         const loadingOverlay = document.getElementById('loading-overlay');
+         loadingOverlay.style.display = 'flex';
+         document.body.style.overflow = 'hidden'; // Prevent scrolling
+
+         currentEpisodeNumber = episodeNumber;
+         document.getElementById('current-episode').value = episodeNumber;
+         localStorage.setItem(`episode_${animeId}`, episodeNumber); // Save the current episode to localStorage
+
+         const animeDetail = await fetchAnimeDetail(animeId);
+         const episodeList = animeDetail.episode_list = (animeDetail.episode_list || []).filter(episode => episode.episode_endpoint.includes("episode-")) || [];
+
+         const iframe = document.getElementById('streaming-iframe');
+         const iframeError = document.getElementById('iframe-error');
+         iframe.style.display = 'none';
+         iframeError.style.display = 'none';
+         document.getElementById('anime-detail-container').innerHTML = '';
+
+         if (episodeNumber < 1 || episodeNumber > episodeList.length) {
+           document.getElementById('error-message').textContent = 'Episode not found';
+           loadingOverlay.style.display = 'none';
+           document.body.style.overflow = ''; // Enable scrolling
+           return;
+         }
+
+         const selectedEpisode = episodeList[episodeList.length - episodeNumber];
+         try {
+           const episodeData = await fetchEpisodeStream(selectedEpisode.episode_endpoint);
+
+           const serverOptions = [];
+           const mirrors = ['mirror_embed1', 'mirror_embed2', 'mirror_embed3'];
+
+           mirrors.forEach(mirrorKey => {
+             const mirrorData = episodeData[mirrorKey];
+             if (mirrorData && mirrorData.straming.length > 0) {
+               mirrorData.straming.forEach(server => {
+                 serverOptions.push({
+                   name: `${server.driver.trim()} - ${mirrorData.quality}`,
+                   link: server.link
+                 });
+               });
+             }
+           });
+
+           populateAnimeDetail(animeDetail, episodeData, serverOptions);
+           populateEpisodeList(episodeList, selectedEpisode);
+
+           let streamingUrl = episodeData.streamLink;
+
+           // Use the selected server if available, otherwise use the default
+           const selectedServerOption = serverOptions.find(server => server.name === document.getElementById('server-select').value);
+           if (selectedServerOption) {
+             const streamResponse = await fetch(`${basenya}${selectedServerOption.link}`);
+             const streamData = await streamResponse.json();
+             streamingUrl = streamData.streaming_url || streamingUrl;
+           }
+
+           iframe.src = streamingUrl;
+           iframe.onload = () => {
+             iframe.style.display = 'block';
+             loadingOverlay.style.display = 'none';
+             document.body.style.overflow = ''; // Enable scrolling
+           };
+           iframe.onerror = () => {
+             iframeError.style.display = 'block';
+             loadingOverlay.style.display = 'none';
+             document.body.style.overflow = ''; // Enable scrolling
+           };
+
+           // Update button states based on episode number
+           updateEpisodeButtons(episodeList.length);
+         } catch (error) {
+           document.getElementById('error-message').textContent = 'Failed to load episode data. Please try again later.';
+           loadingOverlay.style.display = 'none';
+           iframeError.style.display = 'block';
+           document.body.style.overflow = ''; // Enable scrolling
+         }
+       }
+
+       function updateEpisodeButtons(totalEpisodes) {
+         const prevButton = document.getElementById('prev-episode');
+         const nextButton = document.getElementById('next-episode');
+
+         prevButton.disabled = currentEpisodeNumber <= 1;
+         nextButton.disabled = currentEpisodeNumber >= totalEpisodes;
+       }
+
+       document.getElementById('server-select').addEventListener('change', (e) => {
+         selectedServer = e.target.value; // Store the selected server
+         loadEpisode(currentEpisodeNumber);
+       });
+       document.getElementById('prev-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber - 1));
+       document.getElementById('next-episode').addEventListener('click', () => loadEpisode(currentEpisodeNumber + 1));
+
+       loadEpisode(currentEpisodeNumber);
+     </script>
    </body>
    </html>
